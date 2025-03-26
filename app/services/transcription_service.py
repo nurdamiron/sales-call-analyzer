@@ -1,17 +1,17 @@
 import os
 import json
-import openai
 from dotenv import load_dotenv
+import requests
 
 # Загрузка переменных окружения
 load_dotenv()
 
-# Настройка OpenAI API
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Получаем API ключ из переменных окружения
+api_key = os.getenv("OPENAI_API_KEY")
 
 async def transcribe_audio(file_path: str) -> str:
     """
-    Транскрибирует аудиофайл в текст с использованием Whisper API
+    Транскрибирует аудиофайл в текст с использованием Whisper API через прямой HTTP запрос
     
     Args:
         file_path (str): Путь к аудиофайлу
@@ -20,25 +20,41 @@ async def transcribe_audio(file_path: str) -> str:
         str: Текстовая транскрипция аудио
     """
     try:
+        # URL для запроса к API Whisper
+        url = "https://api.openai.com/v1/audio/transcriptions"
+        
+        # Параметры запроса
+        headers = {
+            "Authorization": f"Bearer {api_key}"
+        }
+        
+        # Подготовка файла
         with open(file_path, "rb") as audio_file:
-            response = await openai.Audio.atranscribe(
-                model="whisper-1",
-                file=audio_file,
-                response_format="verbose_json",
-                language="ru"  # Можно настроить на нужный язык
-            )
+            files = {
+                "file": (os.path.basename(file_path), audio_file, "audio/mpeg")
+            }
             
-            # Извлекаем полный текст
-            transcript = response["text"]
+            # Форма данных
+            data = {
+                "model": "whisper-1",
+                "language": "ru"
+            }
             
-            # Если нужны сегменты с таймингами, их можно получить из segments
-            # segments = response.get("segments", [])
+            # Выполнение запроса
+            response = requests.post(url, headers=headers, files=files, data=data)
             
-            return transcript
+            # Проверка статуса
+            if response.status_code == 200:
+                # Получаем результат
+                result = response.json()
+                return result.get("text", "")
+            else:
+                print(f"Ошибка API: {response.status_code}, {response.text}")
+                return "Не удалось транскрибировать аудио"
             
     except Exception as e:
         print(f"Ошибка при транскрибировании аудио: {str(e)}")
-        # В случае ошибки возвращаем пустую строку или заглушку
+        # В случае ошибки возвращаем заглушку
         return "Не удалось транскрибировать аудио"
 
 # Альтернативная функция для использования локальной модели Whisper

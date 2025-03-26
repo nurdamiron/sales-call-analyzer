@@ -72,7 +72,6 @@ brew install ffmpeg
 ```
 # API ключи
 OPENAI_API_KEY=ваш_ключ_openai
-ANTHROPIC_API_KEY=ваш_ключ_anthropic
 
 # Настройки приложения
 APP_ENV=development
