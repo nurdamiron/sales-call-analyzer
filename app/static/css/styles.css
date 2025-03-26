@@ -1,0 +1,68 @@
+/* Карточки звонков */
+.call-card {
+    transition: transform 0.2s;
+    margin-bottom: 20px;
+}
+.call-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Значки оценок */
+.score-badge {
+    font-size: 1.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+.score-excellent {
+    background-color: #4CAF50;
+    color: white;
+}
+.score-good {
+    background-color: #8BC34A;
+    color: white;
+}
+.score-average {
+    background-color: #FFC107;
+    color: black;
+}
+.score-below-average {
+    background-color: #FF9800;
+    color: white;
+}
+.score-poor {
+    background-color: #F44336;
+    color: white;
+}
+
+/* Карточки моментов */
+.moment-card {
+    border-left: 4px solid;
+    margin-bottom: 10px;
+}
+.moment-good {
+    border-left-color: #4CAF50;
+}
+.moment-bad {
+    border-left-color: #F44336;
+}
+
+/* Спиннер загрузки */
+.hidden {
+    display: none;
+}
+#loadingSpinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
