@@ -77,95 +77,157 @@
         </div>
         
         <!-- Модальное окно с деталями анализа -->
-        <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Анализ звонка</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <!-- Оценки -->
-                            <div class="col-md-4">
-                                <div class="card mb-3">
-                                    <div class="card-header bg-info text-white">
-                                        <h5 class="mb-0">Оценки</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center mb-3">
-                                            <div id="overallScore" class="score-badge mx-auto mb-2">0.0</div>
-                                            <h6>Общая оценка</h6>
-                                        </div>
-                                        <ul class="list-group" id="scoresList">
-                                            <!-- Здесь будут оценки -->
-                                        </ul>
-                                    </div>
-                                </div>
-                                
-                                <!-- Рекомендации -->
-                                <div class="card">
-                                    <div class="card-header bg-warning text-dark">
-                                        <h5 class="mb-0">Рекомендации</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="list-group" id="recommendationsList">
-                                            <!-- Здесь будут рекомендации -->
-                                        </ul>
-                                    </div>
-                                </div>
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Анализ звонка</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Оценки -->
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">Оценки</h5>
                             </div>
-                            
-                            <!-- Лучшие и худшие моменты -->
-                            <div class="col-md-8">
-                                <div class="card mb-3">
-                                    <div class="card-header bg-success text-white">
-                                        <h5 class="mb-0">Лучшие моменты</h5>
-                                    </div>
-                                    <div class="card-body" id="bestMomentsList">
-                                        <!-- Здесь будут лучшие моменты -->
-                                    </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <div id="overallScore" class="score-badge mx-auto mb-2">0.0</div>
+                                    <h6>Общая оценка</h6>
                                 </div>
-                                
-                                <div class="card mb-3">
-                                    <div class="card-header bg-danger text-white">
-                                        <h5 class="mb-0">Требуют улучшения</h5>
-                                    </div>
-                                    <div class="card-body" id="worstMomentsList">
-                                        <!-- Здесь будут худшие моменты -->
-                                    </div>
-                                </div>
-                                
-                                <!-- Анализ по этапам -->
-                                <div class="card">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0">Анализ по этапам разговора</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="accordion" id="stagesAccordion">
-                                            <!-- Здесь будут этапы -->
-                                        </div>
-                                    </div>
-                                </div>
+                                <ul class="list-group" id="scoresList">
+                                    <!-- Здесь будут оценки -->
+                                </ul>
                             </div>
                         </div>
                         
-                        <!-- Транскрипция -->
-                        <div class="card mt-3">
-                            <div class="card-header bg-dark text-white">
-                                <h5 class="mb-0">Транскрипция</h5>
+                        <!-- Рекомендации -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0">Рекомендации</h5>
                             </div>
                             <div class="card-body">
-                                <pre id="transcriptText" class="p-3" style="white-space: pre-wrap;"></pre>
+                                <ul class="list-group" id="recommendationsList">
+                                    <!-- Здесь будут рекомендации -->
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Общий комментарий к звонку -->
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Общий комментарий</h5>
+                            </div>
+                            <div class="card-body">
+                                <textarea id="generalComment" class="form-control" rows="4" 
+                                    placeholder="Добавьте общий комментарий к звонку..."></textarea>
+                                <button id="saveGeneralComment" class="btn btn-sm btn-secondary mt-2">
+                                    <i class="bi bi-save"></i> Сохранить
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    
+                    <!-- Лучшие и худшие моменты -->
+                    <div class="col-md-8">
+                        <div class="card mb-3">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Лучшие моменты</h5>
+                                <button class="btn btn-sm btn-light" id="addBestMoment">
+                                    <i class="bi bi-plus-circle"></i> Добавить
+                                </button>
+                            </div>
+                            <div class="card-body" id="bestMomentsList">
+                                <!-- Здесь будут лучшие моменты -->
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Требуют улучшения</h5>
+                                <button class="btn btn-sm btn-light" id="addWorstMoment">
+                                    <i class="bi bi-plus-circle"></i> Добавить
+                                </button>
+                            </div>
+                            <div class="card-body" id="worstMomentsList">
+                                <!-- Здесь будут худшие моменты -->
+                            </div>
+                        </div>
+                        
+                        <!-- Анализ по этапам -->
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Анализ по этапам разговора</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="accordion" id="stagesAccordion">
+                                    <!-- Здесь будут этапы -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Транскрипция с возможностью выделения моментов -->
+                <div class="card mt-3">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Транскрипция</h5>
+                        <div>
+                            <button class="btn btn-sm btn-success" id="markAsBest">
+                                <i class="bi bi-check-circle"></i> Отметить как удачный момент
+                            </button>
+                            <button class="btn btn-sm btn-danger ms-2" id="markAsWorst">
+                                <i class="bi bi-exclamation-circle"></i> Отметить как неудачный момент
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <pre id="transcriptText" class="p-3 transcript-selectable" style="white-space: pre-wrap;"></pre>
                     </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveAllComments">Сохранить все комментарии</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- Модальное окно для добавления комментария к моменту -->
+<div class="modal fade" id="momentCommentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="momentCommentTitle">Добавить комментарий</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="momentText" class="form-label">Текст момента</label>
+                    <textarea class="form-control" id="momentText" rows="3" readonly></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="momentComment" class="form-label">Ваш комментарий</label>
+                    <textarea class="form-control" id="momentComment" rows="3" 
+                        placeholder="Почему этот момент важен?"></textarea>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="addToTraining">
+                    <label class="form-check-label" for="addToTraining">
+                        Добавить в тренировочную базу для обучения продажников
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveMomentComment">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
     <!-- Bootstrap JS -->

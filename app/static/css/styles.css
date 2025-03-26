@@ -66,3 +66,73 @@
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
+
+/* Добавьте эти стили в app/static/css/styles.css */
+
+/* Стили для выделения текста в транскрипции */
+.transcript-selectable {
+    user-select: text;
+    cursor: text;
+}
+
+/* Стили для выделенных моментов в транскрипции */
+.highlight-best {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-radius: 3px;
+    padding: 2px 0;
+}
+
+.highlight-worst {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-radius: 3px;
+    padding: 2px 0;
+}
+
+/* Стили для карточек моментов */
+.moment-card {
+    position: relative;
+    border-left: 4px solid;
+    margin-bottom: 15px;
+    transition: all 0.2s ease;
+}
+
+.moment-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.moment-good {
+    border-left-color: #28a745;
+}
+
+.moment-bad {
+    border-left-color: #dc3545;
+}
+
+.moment-card .moment-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.moment-card:hover .moment-actions {
+    opacity: 1;
+}
+
+.moment-user-comment {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 8px;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.training-badge {
+    background-color: #6610f2;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+}
