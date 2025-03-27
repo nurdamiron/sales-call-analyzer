@@ -8,308 +8,420 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- Пользовательские стили -->
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 
 <body>
-    <div id="loadingSpinner" class="hidden">
-        <div class="d-flex align-items-center">
-            <div class="spinner-border text-primary me-2" role="status"></div>
-            <div>
-                <h5 class="mb-0" id="loadingMessage">Загрузка...</h5>
-                <small id="loadingDetails">Пожалуйста, подождите</small>
+    <!-- Заголовок приложения -->
+    <header class="app-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="app-title">Анализатор звонков продажников</h1>
+                    <p class="app-subtitle">Улучшайте качество продаж с помощью AI-анализа звонков</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge rounded-pill bg-primary">v1.0.0</span>
+                </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="container mt-5">
-        <h1 class="mb-4 text-center">Анализатор звонков продажников</h1>
-        
-        <!-- Форма загрузки -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Загрузить новый звонок</h5>
+    <div class="container">
+        <!-- Секция загрузки нового звонка -->
+        <div class="upload-section">
+            <div class="upload-header">
+                <h2 class="upload-title">Загрузить новый звонок</h2>
+                <p class="upload-description">Загрузите аудиофайл звонка для анализа и получения рекомендаций</p>
             </div>
-            <div class="card-body">
-                <form id="uploadForm">
-                    <div class="mb-3">
-                        <label for="callFile" class="form-label">Файл звонка (MP3, WAV, M4A)</label>
-                        <input class="form-control" type="file" id="callFile" accept=".mp3,.wav,.m4a,.ogg">
+            <form id="uploadForm">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="callFile" class="form-label">Файл звонка</label>
+                            <input class="form-control" type="file" id="callFile" accept=".mp3,.wav,.m4a,.ogg">
+                            <div class="form-text">Поддерживаемые форматы: MP3, WAV, M4A, OGG</div>
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
                             <label for="agentName" class="form-label">Имя продажника</label>
-                            <input type="text" class="form-control" id="agentName">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="agentName" placeholder="Введите имя продажника">
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="clientId" class="form-label">ID клиента</label>
-                            <input type="text" class="form-control" id="clientId">
+                        <div class="mb-3">
+                            <label for="clientId" class="form-label">ID клиента (опционально)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <input type="text" class="form-control" id="clientId" placeholder="Введите ID клиента">
+                            </div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="callNotes" class="form-label">Примечания</label>
-                        <textarea class="form-control" id="callNotes" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Загрузить и анализировать</button>
-                </form>
-            </div>
+                </div>
+                <div class="mb-3">
+                    <label for="callNotes" class="form-label">Примечания (опционально)</label>
+                    <textarea class="form-control" id="callNotes" rows="2" placeholder="Добавьте дополнительные заметки о звонке"></textarea>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload me-2"></i>Загрузить и анализировать
+                    </button>
+                </div>
+            </form>
         </div>
         
-        <!-- Список звонков -->
+        <!-- Секция проанализированных звонков -->
         <div class="card">
-            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Проанализированные звонки</h5>
-                <button id="refreshBtn" class="btn btn-sm btn-light">
-                    <i class="bi bi-arrow-clockwise"></i> Обновить
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="fs-5 mb-0">Проанализированные звонки</h2>
+                <button id="refreshBtn" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Обновить
                 </button>
             </div>
             <div class="card-body">
-                <div id="callsList" class="row">
+                <div id="callsList" class="row g-4">
                     <!-- Здесь будут звонки -->
-                    <div class="col-12 text-center py-3">
+                    <div class="col-12 text-center py-5">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Загрузка...</span>
                         </div>
-                        <p class="mt-2">Загрузка списка звонков...</p>
+                        <p class="mt-3">Загрузка списка звонков...</p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Спиннер загрузки -->
+    <div id="loadingSpinner">
+        <div class="loading-content">
+            <div class="spinner-grow" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <h5 id="loadingMessage" class="mb-2">Загрузка...</h5>
+            <p id="loadingDetails" class="mb-0 text-muted">Пожалуйста, подождите</p>
+        </div>
+    </div>
+
+    <!-- Нотификации -->
+    <div id="notificationContainer"></div>
         
-        <!-- Модальное окно с деталями анализа -->
-        <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Анализ звонка</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <ul class="nav nav-tabs" id="analysisTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Сводка</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript" type="button" role="tab" aria-controls="transcript" aria-selected="false">Транскрипция</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false">Комментарии</button>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content pt-3" id="analysisTabContent">
-                            <!-- Вкладка Сводка -->
-                            <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-                                <div class="row">
-                                    <!-- Оценки -->
-                                    <div class="col-md-4">
-                                        <div class="card mb-3">
-                                            <div class="card-header bg-info text-white">
-                                                <h5 class="mb-0">Оценки</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="text-center mb-3">
-                                                    <div id="overallScore" class="score-badge mx-auto mb-2">0.0</div>
-                                                    <h6>Общая оценка</h6>
-                                                </div>
-                                                <ul class="list-group" id="scoresList">
-                                                    <!-- Здесь будут оценки -->
-                                                </ul>
-                                            </div>
+    <!-- Модальное окно с деталями анализа -->
+    <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title d-flex align-items-center">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        <span id="analysisModalTitle">Анализ звонка</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="analysisTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">
+                                <i class="bi bi-clipboard-data me-1"></i>Сводка
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript" type="button" role="tab" aria-controls="transcript" aria-selected="false">
+                                <i class="bi bi-chat-text me-1"></i>Транскрипция
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false">
+                                <i class="bi bi-bookmark me-1"></i>Комментарии
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content pt-3" id="analysisTabContent">
+                        <!-- Вкладка Сводка -->
+                        <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                            <div class="row">
+                                <!-- Оценки -->
+                                <div class="col-md-4">
+                                    <div class="card mb-4">
+                                        <div class="card-header d-flex align-items-center">
+                                            <i class="bi bi-bar-chart-fill me-2 text-primary"></i>
+                                            <h5 class="mb-0">Оценки</h5>
                                         </div>
-                                        
-                                        <!-- Рекомендации -->
-                                        <div class="card">
-                                            <div class="card-header bg-warning text-dark">
-                                                <h5 class="mb-0">Рекомендации</h5>
+                                        <div class="card-body">
+                                            <div class="text-center mb-4">
+                                                <div id="overallScore" class="score-badge mx-auto mb-2">0.0</div>
+                                                <h6>Общая оценка</h6>
                                             </div>
-                                            <div class="card-body">
-                                                <ul class="list-group" id="recommendationsList">
-                                                    <!-- Здесь будут рекомендации -->
-                                                </ul>
-                                            </div>
+                                            <ul class="list-group list-group-flush" id="scoresList">
+                                                <!-- Здесь будут оценки -->
+                                            </ul>
                                         </div>
                                     </div>
                                     
-                                    <!-- Лучшие и худшие моменты -->
-                                    <div class="col-md-8">
-                                        <div class="card mb-3">
-                                            <div class="card-header bg-success text-white">
-                                                <h5 class="mb-0">Лучшие моменты</h5>
-                                            </div>
-                                            <div class="card-body" id="bestMomentsList">
-                                                <!-- Здесь будут лучшие моменты -->
-                                            </div>
+                                    <!-- Рекомендации -->
+                                    <div class="card">
+                                        <div class="card-header d-flex align-items-center">
+                                            <i class="bi bi-lightbulb-fill me-2 text-warning"></i>
+                                            <h5 class="mb-0">Рекомендации</h5>
                                         </div>
-                                        
-                                        <div class="card mb-3">
-                                            <div class="card-header bg-danger text-white">
-                                                <h5 class="mb-0">Требуют улучшения</h5>
-                                            </div>
-                                            <div class="card-body" id="worstMomentsList">
-                                                <!-- Здесь будут худшие моменты -->
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Анализ по этапам -->
-                                        <div class="card">
-                                            <div class="card-header bg-primary text-white">
-                                                <h5 class="mb-0">Анализ по этапам разговора</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="accordion" id="stagesAccordion">
-                                                    <!-- Здесь будут этапы -->
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Вкладка Транскрипция -->
-                            <div class="tab-pane fade" id="transcript" role="tabpanel" aria-labelledby="transcript-tab">
-                                <div class="card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">Транскрипция разговора</h5>
-                                        <div>
-                                            <button id="enableSelectionBtn" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-highlighter"></i> Выделить момент
-                                            </button>
-                                            <button id="cancelSelectionBtn" class="btn btn-sm btn-outline-secondary d-none">
-                                                <i class="bi bi-x-circle"></i> Отмена
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="transcriptContainer" class="p-3">
-                                            <div id="transcriptText" style="white-space: pre-wrap;"></div>
+                                        <div class="card-body">
+                                            <ul class="list-group list-group-flush" id="recommendationsList">
+                                                <!-- Здесь будут рекомендации -->
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Форма для выделения момента (изначально скрыта) -->
-                                <div id="momentForm" class="card mt-3 d-none">
-                                    <div class="card-header bg-light">
-                                        <h5 class="mb-0">Добавить комментарий к выделенному тексту</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="selectedText" class="form-label">Выделенный текст:</label>
-                                            <div id="selectedText" class="p-2 border bg-light rounded"></div>
+                                <!-- Лучшие и худшие моменты -->
+                                <div class="col-md-8">
+                                    <div class="card mb-4">
+                                        <div class="card-header d-flex align-items-center">
+                                            <i class="bi bi-hand-thumbs-up-fill me-2 text-success"></i>
+                                            <h5 class="mb-0">Лучшие моменты</h5>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="momentType" class="form-label">Тип момента:</label>
-                                            <select class="form-select" id="momentType">
-                                                <option value="good">Хороший пример</option>
-                                                <option value="bad">Требует улучшения</option>
-                                                <option value="note">Нейтральная заметка</option>
-                                            </select>
+                                        <div class="card-body" id="bestMomentsList">
+                                            <!-- Здесь будут лучшие моменты -->
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="momentComment" class="form-label">Комментарий:</label>
-                                            <textarea class="form-control" id="momentComment" rows="3" placeholder="Почему это важный момент?"></textarea>
-                                        </div>
-                                        <div class="d-flex justify-content-end">
-                                            <button id="cancelMomentBtn" class="btn btn-secondary me-2">Отмена</button>
-                                            <button id="saveMomentBtn" class="btn btn-primary">Сохранить</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Вкладка Комментарии -->
-                            <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5>Все комментарии и отметки</h5>
-                                    <div>
-                                        <button id="exportCommentsBtn" class="btn btn-sm btn-outline-secondary">
-                                            <i class="bi bi-download"></i> Экспорт
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div id="commentsContainer">
-                                    <div class="alert alert-info" id="noCommentsMessage">
-                                        Нет добавленных комментариев. Перейдите на вкладку "Транскрипция", 
-                                        чтобы выделять важные моменты и добавлять комментарии.
                                     </div>
                                     
-                                    <!-- Список комментариев будет добавлен здесь -->
-                                    <div id="commentsList"></div>
+                                    <div class="card mb-4">
+                                        <div class="card-header d-flex align-items-center">
+                                            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
+                                            <h5 class="mb-0">Требуют улучшения</h5>
+                                        </div>
+                                        <div class="card-body" id="worstMomentsList">
+                                            <!-- Здесь будут худшие моменты -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Анализ по этапам -->
+                                    <div class="card">
+                                        <div class="card-header d-flex align-items-center">
+                                            <i class="bi bi-list-check me-2 text-primary"></i>
+                                            <h5 class="mb-0">Анализ по этапам разговора</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="accordion" id="stagesAccordion">
+                                                <!-- Здесь будут этапы -->
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Вкладка Транскрипция -->
+                        <div class="tab-pane fade" id="transcript" role="tabpanel" aria-labelledby="transcript-tab">
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-chat-text me-2 text-primary"></i>
+                                        <h5 class="mb-0">Транскрипция разговора</h5>
+                                    </div>
+                                    <div>
+                                        <button id="enableSelectionBtn" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-highlighter me-1"></i> Выделить момент
+                                        </button>
+                                        <button id="cancelSelectionBtn" class="btn btn-sm btn-outline-secondary d-none">
+                                            <i class="bi bi-x-circle me-1"></i> Отмена
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="transcriptContainer">
+                                        <div id="transcriptText" style="white-space: pre-wrap;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Форма для выделения момента (изначально скрыта) -->
+                            <div id="momentForm" class="card mt-4 d-none">
+                                <div class="card-header d-flex align-items-center">
+                                    <i class="bi bi-pencil-square me-2 text-primary"></i>
+                                    <h5 class="mb-0">Добавить комментарий к выделенному тексту</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="selectedText" class="form-label">Выделенный текст:</label>
+                                        <div id="selectedText"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="momentType" class="form-label">Тип момента:</label>
+                                        <select class="form-select" id="momentType">
+                                            <option value="good">Хороший пример</option>
+                                            <option value="bad">Требует улучшения</option>
+                                            <option value="note">Нейтральная заметка</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="momentComment" class="form-label">Комментарий:</label>
+                                        <textarea class="form-control" id="momentComment" rows="3" placeholder="Почему это важный момент?"></textarea>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button id="cancelMomentBtn" class="btn btn-secondary me-2">Отмена</button>
+                                        <button id="saveMomentBtn" class="btn btn-primary">Сохранить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Вкладка Комментарии -->
+                        <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-bookmark me-2 text-primary"></i>
+                                    <h5 class="mb-0">Все комментарии и отметки</h5>
+                                </div>
+                                <button id="exportCommentsBtn" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-download me-1"></i> Экспорт
+                                </button>
+                            </div>
+                            
+                            <!-- Фильтры и поиск для комментариев -->
+                            <div class="d-flex flex-wrap align-items-center mb-3">
+                                <div class="btn-group me-3">
+                                    <button class="btn btn-sm btn-outline-secondary active" onclick="filterComments('all')">
+                                        Все
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" onclick="filterComments('good')">
+                                        Хорошие
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="filterComments('bad')">
+                                        Проблемные
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="filterComments('note')">
+                                        Заметки
+                                    </button>
+                                </div>
+                                <div class="input-group" style="max-width: 300px;">
+                                    <input type="text" id="searchCommentsInput" class="form-control form-control-sm" 
+                                          placeholder="Поиск в комментариях...">
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="searchComments(document.getElementById('searchCommentsInput').value)">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="commentsContainer">
+                                <div class="alert alert-info" id="noCommentsMessage">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Нет добавленных комментариев. Перейдите на вкладку "Транскрипция", 
+                                    чтобы выделять важные моменты и добавлять комментарии.
+                                </div>
+                                
+                                <!-- Список комментариев будет добавлен здесь -->
+                                <div id="commentsList"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    </div>
                 </div>
-            </div>
-        </div>
-        
-
-
-<!-- Модальное окно для добавления комментария к моменту -->
-<div class="modal fade" id="momentCommentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="momentCommentTitle">Добавить комментарий</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="momentText" class="form-label">Текст момента</label>
-                    <textarea class="form-control" id="momentText" rows="3" readonly></textarea>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
                 </div>
-                <div class="mb-3">
-                    <label for="momentComment" class="form-label">Ваш комментарий</label>
-                    <textarea class="form-control" id="momentComment" rows="3" 
-                        placeholder="Почему этот момент важен?"></textarea>
-                </div>
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="addToTraining">
-                    <label class="form-check-label" for="addToTraining">
-                        Добавить в тренировочную базу для обучения продажников
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary" id="saveMomentComment">Сохранить</button>
             </div>
         </div>
     </div>
-</div>
-        <!-- Модальное окно удаления комментария -->
-        <div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Подтверждение удаления</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+    <!-- Модальное окно для добавления комментария к моменту -->
+    <div class="modal fade" id="momentCommentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="momentCommentTitle">
+                        <i class="bi bi-pencil-square me-2"></i>Добавить комментарий
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="momentText" class="form-label">Текст момента</label>
+                        <textarea class="form-control" id="momentText" rows="3" readonly></textarea>
                     </div>
-                    <div class="modal-body">
-                        <p>Вы уверены, что хотите удалить этот комментарий?</p>
+                    <div class="mb-3">
+                        <label for="momentComment" class="form-label">Ваш комментарий</label>
+                        <textarea class="form-control" id="momentComment" rows="3" 
+                            placeholder="Почему этот момент важен?"></textarea>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                        <button type="button" class="btn btn-danger" id="confirmDeleteComment">Удалить</button>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="addToTraining">
+                        <label class="form-check-label" for="addToTraining">
+                            Добавить в тренировочную базу для обучения продажников
+                        </label>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveMomentComment">Сохранить</button>
                 </div>
             </div>
         </div>
-
-
+    </div>
+    
+    <!-- Модальное окно удаления комментария -->
+    <div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-trash me-2 text-danger"></i>Подтверждение удаления
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <span>Вы уверены, что хотите удалить этот комментарий?</span>
+                    </div>
+                    <p class="text-muted mb-0">Это действие нельзя будет отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteComment">
+                        <i class="bi bi-trash me-1"></i>Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Пользовательские JavaScript файлы -->
-<script src="/static/js/main.js"></script>
-<script src="/static/js/analysis.js"></script>
-<script src="/static/js/comments.js"></script>
-<script src="/static/js/highlight.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js для визуализации -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Пользовательские JavaScript файлы -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/analysis.js"></script>
+    <script src="/static/js/comments.js"></script>
+    <script src="/static/js/highlight.js"></script>
+    <script src="/static/js/notifications.js"></script>
+    
+    <!-- Инициализация поиска комментариев -->
+    <script>
+        // Обработчик события для поля поиска
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchCommentsInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    searchComments(this.value);
+                });
+            }
+            
+            // Установка активного класса на кнопках фильтрации
+            const filterButtons = document.querySelectorAll('.btn-group button[onclick^="filterComments"]');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

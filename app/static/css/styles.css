@@ -1,138 +1,640 @@
-/* Карточки звонков */
-.call-card {
-    transition: transform 0.2s;
-    margin-bottom: 20px;
-}
-.call-card:hover {
+/* Основные переменные */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+    --gray-color: #95a5a6;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Общие стили */
+  body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    padding: 0 15px;
+  }
+  
+  .card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    margin-bottom: 24px;
+  }
+  
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  .card-footer {
+    padding: 12px 20px;
+    background-color: white;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 8px 16px;
+    transition: var(--transition);
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+  
+  .btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+  }
+  
+  .btn-danger:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+  }
+  
+  /* Заголовок приложения */
+  .app-header {
+    background-color: white;
+    padding: 24px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .app-title {
+    color: var(--dark-color);
+    font-weight: 700;
+    margin-bottom: 0;
+    font-size: 28px;
+  }
+  
+  .app-subtitle {
+    color: var(--gray-color);
+    font-weight: 400;
+    margin-top: 5px;
+    font-size: 16px;
+  }
+  
+  /* Карточки звонков */
+  .call-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+  }
+  
+  .call-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-/* Значки оценок */
-.score-badge {
-    font-size: 1.5rem;
-    width: 60px;
-    height: 60px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .call-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+  }
+  
+  .call-card .badge-date {
+    font-size: 12px;
+    background-color: #f1f5f9;
+    color: #64748b;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  
+  .call-card .card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .call-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .call-info-item {
+    display: flex;
+    align-items: center;
+    color: #64748b;
+    font-size: 14px;
+  }
+  
+  .call-info-item i {
+    margin-right: 8px;
+    width: 16px;
+  }
+  
+  /* Значки оценок */
+  .score-badge {
+    font-size: 18px;
+    font-weight: 700;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-}
-.score-excellent {
-    background-color: #4CAF50;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .score-excellent {
+    background-color: #10b981;
     color: white;
-}
-.score-good {
-    background-color: #8BC34A;
+  }
+  
+  .score-good {
+    background-color: #22c55e;
     color: white;
-}
-.score-average {
-    background-color: #FFC107;
-    color: black;
-}
-.score-below-average {
-    background-color: #FF9800;
+  }
+  
+  .score-average {
+    background-color: #f59e0b;
     color: white;
-}
-.score-poor {
-    background-color: #F44336;
+  }
+  
+  .score-below-average {
+    background-color: #f97316;
     color: white;
-}
-
-/* Карточки моментов */
-.moment-card {
-    border-left: 4px solid;
-    margin-bottom: 10px;
-}
-.moment-good {
-    border-left-color: #4CAF50;
-}
-.moment-bad {
-    border-left-color: #F44336;
-}
-
-/* Спиннер загрузки */
-.hidden {
-    display: none;
-}
-#loadingSpinner {
+  }
+  
+  .score-poor {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  /* Спиннер загрузки */
+  #loadingSpinner {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 9999;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-/* Добавьте эти стили в app/static/css/styles.css */
-
-/* Стили для выделения текста в транскрипции */
-.transcript-selectable {
-    user-select: text;
-    cursor: text;
-}
-
-/* Стили для выделенных моментов в транскрипции */
-.highlight-best {
-    background-color: rgba(40, 167, 69, 0.2);
-    border-radius: 3px;
-    padding: 2px 0;
-}
-
-.highlight-worst {
-    background-color: rgba(220, 53, 69, 0.2);
-    border-radius: 3px;
-    padding: 2px 0;
-}
-
-/* Стили для карточек моментов */
-.moment-card {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  #loadingSpinner.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .loading-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px 32px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+  }
+  
+  .spinner-grow {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: var(--primary-color);
+  }
+  
+  /* Вкладки анализа */
+  .nav-tabs {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .nav-tabs .nav-link {
+    color: var(--gray-color);
+    font-weight: 500;
+    padding: 12px 20px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: var(--transition);
+  }
+  
+  .nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    background-color: transparent;
+  }
+  
+  /* Карточки моментов */
+  .moment-card {
     position: relative;
     border-left: 4px solid;
     margin-bottom: 15px;
     transition: all 0.2s ease;
-}
-
-.moment-card:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.moment-good {
-    border-left-color: #28a745;
-}
-
-.moment-bad {
-    border-left-color: #dc3545;
-}
-
-.moment-card .moment-actions {
+    background-color: white;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+  
+  .moment-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .moment-good {
+    border-left-color: var(--success-color);
+  }
+  
+  .moment-bad {
+    border-left-color: var(--danger-color);
+  }
+  
+  .moment-card .card-body {
+    position: relative;
+    padding: 16px 20px;
+  }
+  
+  .moment-card .moment-text {
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  
+  .moment-card .moment-comment {
+    color: #64748b;
+    font-size: 14px;
+  }
+  
+  .moment-actions {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
     opacity: 0;
     transition: opacity 0.2s ease;
-}
-
-.moment-card:hover .moment-actions {
+  }
+  
+  .moment-card:hover .moment-actions {
     opacity: 1;
-}
-
-.moment-user-comment {
-    background-color: #f8f9fa;
-    border-top: 1px solid #e9ecef;
-    padding: 8px;
-    margin-top: 8px;
-    font-style: italic;
-}
-
-.training-badge {
-    background-color: #6610f2;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 5px;
+  }
+  
+  /* Выделения в транскрипции */
+  #transcriptContainer {
+    padding: 24px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  
+  .selection-mode {
+    background-color: #fef9c3 !important;
+    cursor: pointer;
+  }
+  
+  .highlight-good {
+    background-color: rgba(46, 204, 113, 0.2);
     border-radius: 3px;
-    margin-left: 5px;
-}
+    padding: 2px 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+  
+  .highlight-good:hover {
+    background-color: rgba(46, 204, 113, 0.3);
+  }
+  
+  .highlight-bad {
+    background-color: rgba(231, 76, 60, 0.2);
+    border-radius: 3px;
+    padding: 2px 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+  
+  .highlight-bad:hover {
+    background-color: rgba(231, 76, 60, 0.3);
+  }
+  
+  .highlight-note {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-radius: 3px;
+    padding: 2px 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+  
+  .highlight-note:hover {
+    background-color: rgba(52, 152, 219, 0.3);
+  }
+  
+  .highlight-pulse {
+    animation: pulse 1s;
+  }
+  
+  @keyframes pulse {
+    0% {
+      background-color: rgba(255, 193, 7, 0.7);
+    }
+    100% {
+      background-color: rgba(255, 193, 7, 0);
+    }
+  }
+  
+  /* Форма выделения момента */
+  #momentForm {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: none;
+    margin-top: 24px;
+  }
+  
+  #momentForm .card-header {
+    background-color: #f8fafc;
+    padding: 16px 20px;
+  }
+  
+  #selectedText {
+    background-color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-style: italic;
+    color: #334155;
+  }
+  
+  /* Комментарии */
+  .comment-card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 16px;
+    border: none;
+    overflow: hidden;
+  }
+  
+  .comment-good {
+    border-left: 4px solid var(--success-color);
+  }
+  
+  .comment-bad {
+    border-left: 4px solid var(--danger-color);
+  }
+  
+  .comment-note {
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  .comment-card .card-body {
+    padding: 16px 20px;
+  }
+  
+  .comment-icon {
+    margin-right: 6px;
+    font-size: 16px;
+  }
+  
+  .comment-actions {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  
+  .comment-card:hover .comment-actions {
+    opacity: 1;
+  }
+  
+  .comment-card blockquote {
+    background-color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  
+  .comment-card blockquote p {
+    margin-bottom: 0;
+    color: #334155;
+  }
+  
+  /* Аккордеон анализа по этапам */
+  .accordion-item {
+    border: none;
+    margin-bottom: 8px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .accordion-button {
+    padding: 16px 20px;
+    background-color: white;
+    font-weight: 500;
+    color: var(--dark-color);
+  }
+  
+  .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0, 0, 0, 0.125);
+  }
+  
+  .accordion-button:not(.collapsed) {
+    color: var(--primary-color);
+    background-color: white;
+    box-shadow: none;
+  }
+  
+  .accordion-body {
+    padding: 16px 20px;
+    background-color: #f8fafc;
+  }
+  
+  /* Форма загрузки звонка */
+  .upload-section {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 24px;
+    margin-bottom: 30px;
+  }
+  
+  .upload-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .upload-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 8px;
+  }
+  
+  .upload-description {
+    color: var(--gray-color);
+    margin-bottom: 0;
+  }
+  
+  .form-control, .form-select {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    font-size: 14px;
+    transition: var(--transition);
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  }
+  
+  .form-label {
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 8px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 767px) {
+    .card-header {
+      padding: 12px 16px;
+    }
+    
+    .card-body {
+      padding: 16px;
+    }
+    
+    .app-title {
+      font-size: 24px;
+    }
+    
+    .score-badge {
+      width: 40px;
+      height: 40px;
+      font-size: 16px;
+    }
+  }
+  
+  /* Немедленная обратная связь для кнопок */
+  .btn:active {
+    transform: scale(0.97);
+  }
+  
+  /* Показатель прогресса анализа */
+  .progress-container {
+    margin-top: 20px;
+  }
+  
+  .progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e2e8f0;
+    margin-bottom: 8px;
+  }
+  
+  .progress-bar {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+  }
+  
+  .progress-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  /* Нотификации */
+  .notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 20px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    max-width: 350px;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 1050;
+  }
+  
+  .notification.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  .notification-icon {
+    font-size: 20px;
+    margin-right: 12px;
+  }
+  
+  .notification-success .notification-icon {
+    color: var(--success-color);
+  }
+  
+  .notification-error .notification-icon {
+    color: var(--danger-color);
+  }
+  
+  .notification-warning .notification-icon {
+    color: var(--warning-color);
+  }
+  
+  .notification-info .notification-icon {
+    color: var(--primary-color);
+  }
+  
+  .notification-content {
+    flex-grow: 1;
+  }
+  
+  .notification-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 16px;
+  }
+  
+  .notification-message {
+    margin-bottom: 0;
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  .notification-close {
+    font-size: 18px;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .notification-close:hover {
+    color: #94a3b8;
+  }

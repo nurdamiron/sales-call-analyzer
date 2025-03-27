@@ -17,6 +17,9 @@ function toggleSelectionMode() {
         
         // Добавляем обработчик события выделения текста
         document.getElementById('transcriptText').addEventListener('mouseup', handleTextSelection);
+        
+        // Показываем подсказку
+        showNotification('info', 'Режим выделения активирован', 'Выделите важные моменты в тексте транскрипции');
     } else {
         // Выключаем режим выделения
         transcriptContainer.classList.remove('selection-mode');
@@ -74,11 +77,17 @@ async function saveMoment() {
     const momentComment = document.getElementById('momentComment').value.trim();
     
     if (!momentComment) {
-        alert('Пожалуйста, добавьте комментарий к выделенному тексту');
+        showNotification('warning', 'Внимание', 'Пожалуйста, добавьте комментарий к выделенному тексту');
         return;
     }
     
     try {
+        // Показываем индикатор загрузки
+        const saveMomentBtn = document.getElementById('saveMomentBtn');
+        const originalText = saveMomentBtn.innerHTML;
+        saveMomentBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Сохранение...';
+        saveMomentBtn.disabled = true;
+        
         // Создаем новый комментарий
         const newComment = {
             id: Date.now().toString(), // Генерируем уникальный ID
@@ -91,15 +100,29 @@ async function saveMoment() {
         // Добавляем комментарий и обновляем интерфейс
         await addNewComment(newComment);
         
+        // Возвращаем оригинальный текст кнопки
+        saveMomentBtn.innerHTML = originalText;
+        saveMomentBtn.disabled = false;
+        
         // Скрываем форму
         cancelMomentForm();
         
         // Выключаем режим выделения
         cancelSelection();
         
+        // Показываем успешное сообщение
+        showNotification('success', 'Комментарий добавлен', 'Выделение успешно добавлено');
+        
     } catch (error) {
         console.error('Ошибка при сохранении комментария:', error);
-        alert(`Ошибка при сохранении комментария: ${error.message}`);
+        
+        // Возвращаем оригинальный текст кнопки
+        const saveMomentBtn = document.getElementById('saveMomentBtn');
+        saveMomentBtn.innerHTML = '<i class="bi bi-save me-1"></i>Сохранить';
+        saveMomentBtn.disabled = false;
+        
+        // Показываем ошибку
+        showNotification('error', 'Ошибка', `Не удалось сохранить комментарий: ${error.message}`);
     }
 }
 
@@ -136,7 +159,8 @@ function escapeRegExp(string) {
 // Добавление обработчиков событий к выделенным фрагментам
 function addHighlightEventListeners() {
     document.querySelectorAll('.highlight-good, .highlight-bad, .highlight-note').forEach(element => {
-        element.addEventListener('click', function() {
+        element.addEventListener('click', function(event) {
+            event.preventDefault();
             const commentId = this.getAttribute('data-comment-id');
             showCommentDetails(commentId);
         });

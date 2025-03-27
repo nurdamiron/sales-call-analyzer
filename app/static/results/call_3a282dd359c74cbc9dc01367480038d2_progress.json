@@ -1,0 +1,123 @@
+{
+  "call_id": "call_3a282dd359c74cbc9dc01367480038d2",
+  "start_time": 1743037072.468833,
+  "current_step": "completed",
+  "current_message": "Анализ успешно завершен",
+  "messages": [
+    {
+      "timestamp": 1743037072.468835,
+      "message": "Процесс анализа запущен",
+      "step": "initialization"
+    },
+    {
+      "timestamp": 1743037072.472799,
+      "elapsed_seconds": 0.0,
+      "message": "Обработка файла и подготовка данных",
+      "step": "file_processing"
+    },
+    {
+      "timestamp": 1743037072.474043,
+      "elapsed_seconds": 0.01,
+      "message": "Получены метаданные: Айгерим"
+    },
+    {
+      "timestamp": 1743037072.474315,
+      "elapsed_seconds": 0.01,
+      "message": "Определение длительности аудио..."
+    },
+    {
+      "timestamp": 1743037072.7870579,
+      "elapsed_seconds": 0.32,
+      "message": "Длительность аудио: 162.28 секунд"
+    },
+    {
+      "timestamp": 1743037072.787461,
+      "elapsed_seconds": 0.32,
+      "message": "Начало транскрибирования аудио",
+      "step": "transcription_start"
+    },
+    {
+      "timestamp": 1743037072.787601,
+      "elapsed_seconds": 0.32,
+      "message": "Подготовка аудиофайла для отправки"
+    },
+    {
+      "timestamp": 1743037072.7877388,
+      "elapsed_seconds": 0.32,
+      "message": "Отправка аудио в Whisper API"
+    },
+    {
+      "timestamp": 1743037086.118786,
+      "elapsed_seconds": 13.65,
+      "message": "Транскрипция успешно завершена. Получено 326 слов.",
+      "step": "transcription"
+    },
+    {
+      "timestamp": 1743037086.1207612,
+      "elapsed_seconds": 13.65,
+      "message": "Начало анализа текста разговора",
+      "step": "analysis_start"
+    },
+    {
+      "timestamp": 1743037086.1211882,
+      "elapsed_seconds": 13.65,
+      "message": "Анализируется текст длиной 1929 символов (326 слов)"
+    },
+    {
+      "timestamp": 1743037086.12144,
+      "elapsed_seconds": 13.65,
+      "message": "Подготовка промпта для анализа",
+      "step": "analysis"
+    },
+    {
+      "timestamp": 1743037086.1218581,
+      "elapsed_seconds": 13.65,
+      "message": "Отправка запроса на анализ в OpenAI API"
+    },
+    {
+      "timestamp": 1743037133.7097752,
+      "elapsed_seconds": 61.24,
+      "message": "Ответ от API получен, обработка результатов"
+    },
+    {
+      "timestamp": 1743037133.7102752,
+      "elapsed_seconds": 61.24,
+      "message": "Общая оценка звонка: 5.6/10"
+    },
+    {
+      "timestamp": 1743037133.710521,
+      "elapsed_seconds": 61.24,
+      "message": "Выявлено 3 сильных и 3 слабых моментов"
+    },
+    {
+      "timestamp": 1743037133.710733,
+      "elapsed_seconds": 61.24,
+      "message": "Подготовлено 3 рекомендаций"
+    },
+    {
+      "timestamp": 1743037133.710948,
+      "elapsed_seconds": 61.24,
+      "message": "Формирование итогового отчета",
+      "step": "finalizing"
+    },
+    {
+      "timestamp": 1743037133.711164,
+      "elapsed_seconds": 61.24,
+      "message": "Анализ успешно завершен",
+      "step": "completed"
+    },
+    {
+      "timestamp": 1743037133.712706,
+      "elapsed_seconds": 61.24,
+      "message": "Формирование итогового отчета",
+      "step": "finalizing"
+    },
+    {
+      "timestamp": 1743037133.71553,
+      "elapsed_seconds": 61.25,
+      "message": "Анализ успешно завершен",
+      "step": "completed"
+    }
+  ],
+  "last_update": 1743037133.71553
+}
