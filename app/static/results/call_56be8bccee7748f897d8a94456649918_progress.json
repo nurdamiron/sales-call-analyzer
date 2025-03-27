@@ -1,123 +1,123 @@
 {
-  "call_id": "call_dbd7e198216b477382f413309c73df59",
-  "start_time": 1743035169.042112,
+  "call_id": "call_56be8bccee7748f897d8a94456649918",
+  "start_time": 1743035761.412695,
   "current_step": "completed",
   "current_message": "Анализ успешно завершен",
   "messages": [
     {
-      "timestamp": 1743035169.042115,
+      "timestamp": 1743035761.412698,
       "message": "Процесс анализа запущен",
       "step": "initialization"
     },
     {
-      "timestamp": 1743035169.043113,
+      "timestamp": 1743035761.414311,
       "elapsed_seconds": 0.0,
       "message": "Обработка файла и подготовка данных",
       "step": "file_processing"
     },
     {
-      "timestamp": 1743035169.043384,
+      "timestamp": 1743035761.4148202,
       "elapsed_seconds": 0.0,
       "message": "Получены метаданные: Жанат"
     },
     {
-      "timestamp": 1743035169.0435588,
+      "timestamp": 1743035761.415065,
       "elapsed_seconds": 0.0,
       "message": "Определение длительности аудио..."
     },
     {
-      "timestamp": 1743035169.2429209,
-      "elapsed_seconds": 0.2,
+      "timestamp": 1743035761.633603,
+      "elapsed_seconds": 0.22,
       "message": "Длительность аудио: 69.38 секунд"
     },
     {
-      "timestamp": 1743035169.243184,
-      "elapsed_seconds": 0.2,
+      "timestamp": 1743035761.6338508,
+      "elapsed_seconds": 0.22,
       "message": "Начало транскрибирования аудио",
       "step": "transcription_start"
     },
     {
-      "timestamp": 1743035169.2433338,
-      "elapsed_seconds": 0.2,
+      "timestamp": 1743035761.633983,
+      "elapsed_seconds": 0.22,
       "message": "Подготовка аудиофайла для отправки"
     },
     {
-      "timestamp": 1743035169.243815,
-      "elapsed_seconds": 0.2,
+      "timestamp": 1743035761.6341262,
+      "elapsed_seconds": 0.22,
       "message": "Отправка аудио в Whisper API"
     },
     {
-      "timestamp": 1743035176.25805,
-      "elapsed_seconds": 7.22,
+      "timestamp": 1743035775.1418722,
+      "elapsed_seconds": 13.73,
       "message": "Транскрипция успешно завершена. Получено 103 слов.",
       "step": "transcription"
     },
     {
-      "timestamp": 1743035176.262582,
-      "elapsed_seconds": 7.22,
+      "timestamp": 1743035775.144602,
+      "elapsed_seconds": 13.73,
       "message": "Начало анализа текста разговора",
       "step": "analysis_start"
     },
     {
-      "timestamp": 1743035176.262801,
-      "elapsed_seconds": 7.22,
+      "timestamp": 1743035775.1449962,
+      "elapsed_seconds": 13.73,
       "message": "Анализируется текст длиной 663 символов (103 слов)"
     },
     {
-      "timestamp": 1743035176.262992,
-      "elapsed_seconds": 7.22,
+      "timestamp": 1743035775.1453629,
+      "elapsed_seconds": 13.73,
       "message": "Подготовка промпта для анализа",
       "step": "analysis"
     },
     {
-      "timestamp": 1743035176.263425,
-      "elapsed_seconds": 7.22,
+      "timestamp": 1743035775.145671,
+      "elapsed_seconds": 13.73,
       "message": "Отправка запроса на анализ в OpenAI API"
     },
     {
-      "timestamp": 1743035216.726159,
-      "elapsed_seconds": 47.68,
+      "timestamp": 1743035820.145374,
+      "elapsed_seconds": 58.73,
       "message": "Ответ от API получен, обработка результатов"
     },
     {
-      "timestamp": 1743035216.727137,
-      "elapsed_seconds": 47.69,
-      "message": "Общая оценка звонка: 7.2/10"
+      "timestamp": 1743035820.145769,
+      "elapsed_seconds": 58.73,
+      "message": "Общая оценка звонка: 5.8/10"
     },
     {
-      "timestamp": 1743035216.727558,
-      "elapsed_seconds": 47.69,
+      "timestamp": 1743035820.1459908,
+      "elapsed_seconds": 58.73,
       "message": "Выявлено 2 сильных и 2 слабых моментов"
     },
     {
-      "timestamp": 1743035216.7278929,
-      "elapsed_seconds": 47.69,
+      "timestamp": 1743035820.14623,
+      "elapsed_seconds": 58.73,
       "message": "Подготовлено 3 рекомендаций"
     },
     {
-      "timestamp": 1743035216.728197,
-      "elapsed_seconds": 47.69,
+      "timestamp": 1743035820.1464362,
+      "elapsed_seconds": 58.73,
       "message": "Формирование итогового отчета",
       "step": "finalizing"
     },
     {
-      "timestamp": 1743035216.728506,
-      "elapsed_seconds": 47.69,
+      "timestamp": 1743035820.146629,
+      "elapsed_seconds": 58.73,
       "message": "Анализ успешно завершен",
       "step": "completed"
     },
     {
-      "timestamp": 1743035216.730871,
-      "elapsed_seconds": 47.69,
+      "timestamp": 1743035820.147614,
+      "elapsed_seconds": 58.73,
       "message": "Формирование итогового отчета",
       "step": "finalizing"
     },
     {
-      "timestamp": 1743035216.735378,
-      "elapsed_seconds": 47.69,
+      "timestamp": 1743035820.1484642,
+      "elapsed_seconds": 58.74,
       "message": "Анализ успешно завершен",
       "step": "completed"
     }
   ],
-  "last_update": 1743035216.735378
+  "last_update": 1743035820.1484642
 }

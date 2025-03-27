@@ -286,6 +286,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         save_json(result_path, result.dict())
         log_progress(call_id, "Анализ успешно завершен", "completed")
         
+        
         # Удаляем файл-маркер обработки
         if os.path.exists(processing_path):
             os.remove(processing_path)
