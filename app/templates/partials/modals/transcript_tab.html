@@ -5,6 +5,15 @@
                 <i class="bi bi-chat-text me-2 text-primary"></i>
                 <h5 class="mb-0">Транскрипция разговора</h5>
             </div>
+            <!-- Добавленный переключатель режимов просмотра -->
+            <div class="btn-group me-2" role="group">
+                <button id="viewDialogueBtn" class="btn btn-sm btn-outline-primary active">
+                    <i class="bi bi-people-fill me-1"></i> Диалог
+                </button>
+                <button id="viewTranscriptBtn" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-text-paragraph me-1"></i> Текст
+                </button>
+            </div>
             <div>
                 <button id="enableSelectionBtn" class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-highlighter me-1"></i> Выделить момент
@@ -16,12 +25,34 @@
         </div>
         <div class="card-body">
             <div id="transcriptContainer">
-                <div id="transcriptText" style="white-space: pre-wrap;"></div>
+                <!-- Добавлена легенда для диалога -->
+                <div id="dialogueLegend" class="mb-3">
+                    <div class="d-flex gap-4">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary me-2">П</span>
+                            <span class="fw-medium">Продавец</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">К</span>
+                            <span class="fw-medium">Клиент</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Контейнер для режима диалога (добавлен) -->
+                <div id="dialogueView" class="dialogue-container">
+                    <!-- Сюда будут добавляться реплики диалога через JavaScript -->
+                </div>
+                
+                <!-- Контейнер для обычного режима (существующий, но обернут для переключения) -->
+                <div id="rawTextView" class="d-none">
+                    <div id="transcriptText" style="white-space: pre-wrap;"></div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Форма для выделения момента (изначально скрыта) -->
+    <!-- Форма для выделения момента (без изменений) -->
     <div id="momentForm" class="card mt-4 d-none">
         <div class="card-header d-flex align-items-center">
             <i class="bi bi-pencil-square me-2 text-primary"></i>

@@ -1,0 +1,44 @@
+/* Стили для отображения диалога */
+.dialogue-container {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .utterance {
+    position: relative;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    max-width: 80%;
+  }
+  
+  .seller-utterance {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    margin-right: auto;
+  }
+  
+  .client-utterance {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    margin-left: auto;
+  }
+  
+  .speaker-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+  }
+  
+  .seller-utterance .speaker-label {
+    color: #1976d2;
+  }
+  
+  .client-utterance .speaker-label {
+    color: #388e3c;
+  }
+  
+  .utterance-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }

@@ -18,6 +18,8 @@ from app.utils.file_utils import get_audio_duration, save_json, load_json, get_a
 # Добавьте следующие импорты в начало файла call_routes.py если они отсутствуют
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+from app.services.dialogue_service import DialogueSplitter
+dialogue_splitter = DialogueSplitter()
 
 # Добавьте модели данных для комментариев
 class Comment(BaseModel):
@@ -263,6 +265,9 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         # Анализируем транскрипцию
         analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript(transcript, call_id)
         
+        log_progress(call_id, "Разделение диалога на реплики", "dialogue_splitting")
+        dialogue = dialogue_splitter.split_dialogue(transcript)
+
         # Создаем результат анализа
         log_progress(call_id, "Формирование итогового отчета", "finalizing")
         result = CallAnalysisResult(
@@ -271,6 +276,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
             duration=duration,
             transcript=transcript,
             analysis=analysis,
+            dialogue=dialogue,
             score=score,
             best_moments=best_moments,
             worst_moments=worst_moments,
@@ -479,3 +485,23 @@ async def cancel_call_analysis(call_id: str):
         return {"status": "success", "message": "Анализ успешно отменен"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при отмене анализа: {str(e)}")
+    
+@router.get("/calls/result/{call_id}")
+async def get_call_result(call_id: str):
+    """Возвращает результат анализа звонка"""
+    result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
+    
+    if os.path.exists(result_path):
+        result = load_json(result_path)
+        
+        # Добавляем разделение диалога, если его еще нет
+        if "dialogue" not in result and "transcript" in result:
+            dialogue = dialogue_splitter.split_dialogue(result["transcript"])
+            result["dialogue"] = dialogue
+            
+            # Сохраняем обновленный результат
+            save_json(result_path, result)
+        
+        return result
+    else:
+        raise HTTPException(status_code=404, detail="Результат анализа не найден")

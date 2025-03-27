@@ -649,3 +649,76 @@
   .progress .bg-secondary {
     background-color: #e2e8f0 !important; /* Светло-серый фон для N/A прогресс-бара */
   }
+
+  /* Стили для отображения диалога */
+.dialogue-container {
+    max-width: 100%;
+    margin-top: 10px;
+  }
+  
+  /* Стиль для реплик */
+  .utterance {
+    position: relative;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    max-width: 85%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Стиль для реплик продавца */
+  .seller-utterance {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    margin-right: auto;
+  }
+  
+  /* Стиль для реплик клиента */
+  .client-utterance {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    margin-left: auto;
+  }
+  
+  /* Метка говорящего */
+  .speaker-badge {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    color: white;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  
+  .seller-badge {
+    background-color: #2196f3;
+  }
+  
+  .client-badge {
+    background-color: #4caf50;
+  }
+  
+  /* Заголовок реплики с меткой говорящего */
+  .utterance-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  /* Текст реплики */
+  .utterance-text {
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  
+  /* Анимация при наведении */
+  .utterance:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s ease;
+  }
+
+  

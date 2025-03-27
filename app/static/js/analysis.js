@@ -1,5 +1,6 @@
 // Глобальная переменная с текущим ID звонка
 let currentCallId = null;
+let currentViewMode = 'dialogue'; // 'dialogue' или 'raw'
 
 // Функция для отображения анализа звонка
 async function viewCallAnalysis(callId) {
@@ -324,4 +325,201 @@ function addToHighlights(event) {
         .catch(error => {
             showNotification('error', 'Ошибка', `Не удалось добавить комментарий: ${error.message}`);
         });
+}
+
+// Функция для обработки диалога из транскрипции
+// Эту функцию нужно вызывать при загрузке анализа звонка
+function processDialogue(transcript) {
+    // Простой алгоритм для разделения реплик
+    // В реальном приложении здесь будет более сложная логика
+    
+    // Разбиваем на предложения с сохранением знаков препинания
+    const sentences = transcript.match(/[^.!?]+[.!?]+/g) || [transcript];
+    
+    const sellerPatterns = [
+        'компан', 'предлага', 'товар', 'наш', 'цен', 'стоим', 'скидк',
+        'специальн', 'меня зовут', 'свяж', 'здравствуйте'
+    ];
+    
+    const clientPatterns = [
+        'интерес', 'стоит', 'сколько', 'цен', 'когда', 'да', 'нет', 
+        'хорошо', 'понятно', 'понял', 'согласен', 'подума'
+    ];
+    
+    const dialogue = [];
+    let currentSpeaker = 'seller'; // Начинаем с продавца
+    let currentUtterance = '';
+    
+    sentences.forEach(sentence => {
+        // Определяем, кому принадлежит предложение
+        let sellerScore = 0;
+        let clientScore = 0;
+        
+        // Проверяем паттерны продавца
+        sellerPatterns.forEach(pattern => {
+            if (sentence.toLowerCase().includes(pattern)) {
+                sellerScore++;
+            }
+        });
+        
+        // Проверяем паттерны клиента
+        clientPatterns.forEach(pattern => {
+            if (sentence.toLowerCase().includes(pattern)) {
+                clientScore++;
+            }
+        });
+        
+        // Определяем говорящего
+        let speaker = currentSpeaker;
+        if (sellerScore > clientScore) {
+            speaker = 'seller';
+        } else if (clientScore > sellerScore) {
+            speaker = 'client';
+        }
+        
+        // Если говорящий изменился, добавляем предыдущую реплику
+        if (speaker !== currentSpeaker && currentUtterance) {
+            dialogue.push({
+                speaker: currentSpeaker,
+                text: currentUtterance.trim()
+            });
+            currentUtterance = '';
+        }
+        
+        // Добавляем текущее предложение
+        currentUtterance += sentence + ' ';
+        currentSpeaker = speaker;
+    });
+    
+    // Добавляем последнюю реплику
+    if (currentUtterance) {
+        dialogue.push({
+            speaker: currentSpeaker,
+            text: currentUtterance.trim()
+        });
+    }
+    
+    return dialogue;
+}
+
+// Функция для отображения диалога
+function renderDialogue(dialogue) {
+    const dialogueView = document.getElementById('dialogueView');
+    dialogueView.innerHTML = '';
+    
+    dialogue.forEach(utterance => {
+        const isSeller = utterance.speaker === 'seller';
+        const speakerClass = isSeller ? 'seller-utterance' : 'client-utterance';
+        const badgeClass = isSeller ? 'seller-badge' : 'client-badge';
+        const speakerName = isSeller ? 'Продавец' : 'Клиент';
+        const speakerInitial = isSeller ? 'П' : 'К';
+        
+        const utteranceDiv = document.createElement('div');
+        utteranceDiv.className = `utterance ${speakerClass}`;
+        utteranceDiv.innerHTML = `
+            <div class="utterance-header">
+                <span class="speaker-badge ${badgeClass}">${speakerInitial}</span>
+                <span>${speakerName}</span>
+            </div>
+            <div class="utterance-text">${utterance.text}</div>
+        `;
+        
+        dialogueView.appendChild(utteranceDiv);
+    });
+}
+
+// Функция для переключения между режимами просмотра
+function toggleViewMode(mode) {
+    const dialogueView = document.getElementById('dialogueView');
+    const rawTextView = document.getElementById('rawTextView');
+    const viewDialogueBtn = document.getElementById('viewDialogueBtn');
+    const viewTranscriptBtn = document.getElementById('viewTranscriptBtn');
+    
+    if (mode === 'dialogue') {
+        dialogueView.classList.remove('d-none');
+        rawTextView.classList.add('d-none');
+        viewDialogueBtn.classList.add('active');
+        viewDialogueBtn.classList.remove('btn-outline-secondary');
+        viewDialogueBtn.classList.add('btn-outline-primary');
+        viewTranscriptBtn.classList.remove('active');
+        viewTranscriptBtn.classList.remove('btn-outline-primary');
+        viewTranscriptBtn.classList.add('btn-outline-secondary');
+    } else {
+        dialogueView.classList.add('d-none');
+        rawTextView.classList.remove('d-none');
+        viewDialogueBtn.classList.remove('active');
+        viewDialogueBtn.classList.remove('btn-outline-primary');
+        viewDialogueBtn.classList.add('btn-outline-secondary');
+        viewTranscriptBtn.classList.add('active');
+        viewTranscriptBtn.classList.remove('btn-outline-secondary');
+        viewTranscriptBtn.classList.add('btn-outline-primary');
+    }
+    
+    currentViewMode = mode;
+}
+
+// Модифицируйте функцию viewCallAnalysis для использования этих новых функций
+async function viewCallAnalysis(callId) {
+    try {
+        showLoading('Загрузка анализа', 'Получение данных...');
+        
+        // Сохраняем текущий ID звонка
+        currentCallId = callId;
+        
+        const response = await fetch(`${API_BASE_URL}/calls/result/${callId}`);
+        if (!response.ok) {
+            throw new Error('Не удалось загрузить анализ звонка');
+        }
+        
+        const analysis = await response.json();
+        
+        // Обновляем заголовок модального окна
+        document.getElementById('analysisModalTitle').textContent = 
+            `Анализ звонка ${analysis.metadata?.agent_name ? `(${analysis.metadata.agent_name})` : ''}`;
+        
+        // Загружаем комментарии к звонку
+        await loadCallComments(callId);
+        
+        // Заполняем данные анализа
+        loadAnalysisSummary(analysis);
+        
+        // Заполняем транскрипцию с выделениями для обычного режима
+        document.getElementById('transcriptText').innerHTML = applyHighlightsToTranscript(analysis.transcript);
+        
+        // Обработка диалога для режима диалога
+        let dialogue;
+        
+        // Если диалог уже есть в данных, используем его
+        if (analysis.dialogue && analysis.dialogue.length > 0) {
+            dialogue = analysis.dialogue;
+        } else {
+            // Иначе генерируем диалог из транскрипции
+            dialogue = processDialogue(analysis.transcript);
+        }
+        
+        // Отображаем диалог
+        renderDialogue(dialogue);
+        
+        // Устанавливаем обработчики для переключения режимов
+        document.getElementById('viewDialogueBtn').addEventListener('click', () => toggleViewMode('dialogue'));
+        document.getElementById('viewTranscriptBtn').addEventListener('click', () => toggleViewMode('raw'));
+        
+        // По умолчанию показываем режим диалога
+        toggleViewMode('dialogue');
+        
+        // После загрузки транскрипции добавляем обработчики событий для выделенных фрагментов
+        addHighlightEventListeners();
+        
+        // Отображаем список комментариев
+        renderCommentsList();
+        
+        // Отображаем модальное окно
+        hideLoading();
+        analysisModal.show();
+        
+    } catch (error) {
+        console.error('Ошибка при загрузке анализа:', error);
+        showNotification('error', 'Ошибка загрузки', `Не удалось загрузить анализ: ${error.message}`);
+        hideLoading();
+    }
 }

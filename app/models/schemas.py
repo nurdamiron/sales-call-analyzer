@@ -30,6 +30,11 @@ class Moment(BaseModel):
     text: str                           # Текст момента
     comment: str                        # Комментарий к моменту
 
+class UtteranceItem(BaseModel):
+    """Реплика в диалоге"""
+    speaker: str  # 'seller' или 'client'
+    text: str
+
 class CallAnalysisResult(BaseModel):
     """Результат анализа звонка"""
     call_id: str
@@ -37,6 +42,7 @@ class CallAnalysisResult(BaseModel):
     file_path: str
     duration: Optional[float] = None
     transcript: str
+    dialogue: Optional[List[UtteranceItem]] = None  # Добавляем поле для диалога
     analysis: Dict[str, str]  # Анализ по этапам разговора
     score: CallScore
     best_moments: List[Moment]
