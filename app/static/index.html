@@ -11,6 +11,7 @@
     <!-- Пользовательские стили -->
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
 <body>
     <div id="loadingSpinner" class="hidden">
         <div class="d-flex align-items-center">
@@ -77,124 +78,177 @@
         </div>
         
         <!-- Модальное окно с деталями анализа -->
-<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Анализ звонка</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <!-- Оценки -->
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0">Оценки</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="text-center mb-3">
-                                    <div id="overallScore" class="score-badge mx-auto mb-2">0.0</div>
-                                    <h6>Общая оценка</h6>
+        <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Анализ звонка</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs" id="analysisTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Сводка</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript" type="button" role="tab" aria-controls="transcript" aria-selected="false">Транскрипция</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false">Комментарии</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content pt-3" id="analysisTabContent">
+                            <!-- Вкладка Сводка -->
+                            <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                                <div class="row">
+                                    <!-- Оценки -->
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-info text-white">
+                                                <h5 class="mb-0">Оценки</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="text-center mb-3">
+                                                    <div id="overallScore" class="score-badge mx-auto mb-2">0.0</div>
+                                                    <h6>Общая оценка</h6>
+                                                </div>
+                                                <ul class="list-group" id="scoresList">
+                                                    <!-- Здесь будут оценки -->
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Рекомендации -->
+                                        <div class="card">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h5 class="mb-0">Рекомендации</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <ul class="list-group" id="recommendationsList">
+                                                    <!-- Здесь будут рекомендации -->
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Лучшие и худшие моменты -->
+                                    <div class="col-md-8">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-success text-white">
+                                                <h5 class="mb-0">Лучшие моменты</h5>
+                                            </div>
+                                            <div class="card-body" id="bestMomentsList">
+                                                <!-- Здесь будут лучшие моменты -->
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-danger text-white">
+                                                <h5 class="mb-0">Требуют улучшения</h5>
+                                            </div>
+                                            <div class="card-body" id="worstMomentsList">
+                                                <!-- Здесь будут худшие моменты -->
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Анализ по этапам -->
+                                        <div class="card">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5 class="mb-0">Анализ по этапам разговора</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="accordion" id="stagesAccordion">
+                                                    <!-- Здесь будут этапы -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <ul class="list-group" id="scoresList">
-                                    <!-- Здесь будут оценки -->
-                                </ul>
                             </div>
-                        </div>
-                        
-                        <!-- Рекомендации -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-warning text-dark">
-                                <h5 class="mb-0">Рекомендации</h5>
+                            
+                            <!-- Вкладка Транскрипция -->
+                            <div class="tab-pane fade" id="transcript" role="tabpanel" aria-labelledby="transcript-tab">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Транскрипция разговора</h5>
+                                        <div>
+                                            <button id="enableSelectionBtn" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-highlighter"></i> Выделить момент
+                                            </button>
+                                            <button id="cancelSelectionBtn" class="btn btn-sm btn-outline-secondary d-none">
+                                                <i class="bi bi-x-circle"></i> Отмена
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="transcriptContainer" class="p-3">
+                                            <div id="transcriptText" style="white-space: pre-wrap;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Форма для выделения момента (изначально скрыта) -->
+                                <div id="momentForm" class="card mt-3 d-none">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Добавить комментарий к выделенному тексту</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="selectedText" class="form-label">Выделенный текст:</label>
+                                            <div id="selectedText" class="p-2 border bg-light rounded"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="momentType" class="form-label">Тип момента:</label>
+                                            <select class="form-select" id="momentType">
+                                                <option value="good">Хороший пример</option>
+                                                <option value="bad">Требует улучшения</option>
+                                                <option value="note">Нейтральная заметка</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="momentComment" class="form-label">Комментарий:</label>
+                                            <textarea class="form-control" id="momentComment" rows="3" placeholder="Почему это важный момент?"></textarea>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button id="cancelMomentBtn" class="btn btn-secondary me-2">Отмена</button>
+                                            <button id="saveMomentBtn" class="btn btn-primary">Сохранить</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <ul class="list-group" id="recommendationsList">
-                                    <!-- Здесь будут рекомендации -->
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <!-- Общий комментарий к звонку -->
-                        <div class="card">
-                            <div class="card-header bg-secondary text-white">
-                                <h5 class="mb-0">Общий комментарий</h5>
-                            </div>
-                            <div class="card-body">
-                                <textarea id="generalComment" class="form-control" rows="4" 
-                                    placeholder="Добавьте общий комментарий к звонку..."></textarea>
-                                <button id="saveGeneralComment" class="btn btn-sm btn-secondary mt-2">
-                                    <i class="bi bi-save"></i> Сохранить
-                                </button>
+                            
+                            <!-- Вкладка Комментарии -->
+                            <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h5>Все комментарии и отметки</h5>
+                                    <div>
+                                        <button id="exportCommentsBtn" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-download"></i> Экспорт
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="commentsContainer">
+                                    <div class="alert alert-info" id="noCommentsMessage">
+                                        Нет добавленных комментариев. Перейдите на вкладку "Транскрипция", 
+                                        чтобы выделять важные моменты и добавлять комментарии.
+                                    </div>
+                                    
+                                    <!-- Список комментариев будет добавлен здесь -->
+                                    <div id="commentsList"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Лучшие и худшие моменты -->
-                    <div class="col-md-8">
-                        <div class="card mb-3">
-                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Лучшие моменты</h5>
-                                <button class="btn btn-sm btn-light" id="addBestMoment">
-                                    <i class="bi bi-plus-circle"></i> Добавить
-                                </button>
-                            </div>
-                            <div class="card-body" id="bestMomentsList">
-                                <!-- Здесь будут лучшие моменты -->
-                            </div>
-                        </div>
-                        
-                        <div class="card mb-3">
-                            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Требуют улучшения</h5>
-                                <button class="btn btn-sm btn-light" id="addWorstMoment">
-                                    <i class="bi bi-plus-circle"></i> Добавить
-                                </button>
-                            </div>
-                            <div class="card-body" id="worstMomentsList">
-                                <!-- Здесь будут худшие моменты -->
-                            </div>
-                        </div>
-                        
-                        <!-- Анализ по этапам -->
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0">Анализ по этапам разговора</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="accordion" id="stagesAccordion">
-                                    <!-- Здесь будут этапы -->
-                                </div>
-                            </div>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
                     </div>
                 </div>
-                
-                <!-- Транскрипция с возможностью выделения моментов -->
-                <div class="card mt-3">
-                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Транскрипция</h5>
-                        <div>
-                            <button class="btn btn-sm btn-success" id="markAsBest">
-                                <i class="bi bi-check-circle"></i> Отметить как удачный момент
-                            </button>
-                            <button class="btn btn-sm btn-danger ms-2" id="markAsWorst">
-                                <i class="bi bi-exclamation-circle"></i> Отметить как неудачный момент
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <pre id="transcriptText" class="p-3 transcript-selectable" style="white-space: pre-wrap;"></pre>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="saveAllComments">Сохранить все комментарии</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>
-    </div>
-</div>
+        
+
 
 <!-- Модальное окно для добавления комментария к моменту -->
 <div class="modal fade" id="momentCommentModal" tabindex="-1" aria-hidden="true">
@@ -228,11 +282,34 @@
         </div>
     </div>
 </div>
+        <!-- Модальное окно удаления комментария -->
+        <div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтверждение удаления</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Вы уверены, что хотите удалить этот комментарий?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteComment">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Пользовательский JavaScript -->
-    <script src="/static/js/main.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Пользовательские JavaScript файлы -->
+<script src="/static/js/main.js"></script>
+<script src="/static/js/analysis.js"></script>
+<script src="/static/js/comments.js"></script>
+<script src="/static/js/highlight.js"></script>
 </body>
 </html>

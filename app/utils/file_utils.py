@@ -4,6 +4,31 @@ import glob
 from typing import Dict, List, Any
 from pydub import AudioSegment
 
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+def save_json(file_path: str, data: Dict) -> bool:
+    """
+    Сохраняет данные в JSON-файл
+    
+    Args:
+        file_path (str): Путь к файлу
+        data (Dict): Данные для сохранения
+        
+    Returns:
+        bool: True если успешно, иначе False
+    """
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2, cls=DateTimeEncoder)
+        return True
+    except Exception as e:
+        print(f"Ошибка при сохранении JSON: {str(e)}")
+        return False
+    
 def get_audio_duration(file_path: str) -> float:
     """
     Получает длительность аудиофайла в секундах
@@ -21,24 +46,6 @@ def get_audio_duration(file_path: str) -> float:
         print(f"Ошибка при получении длительности аудио: {str(e)}")
         return 0.0
 
-def save_json(file_path: str, data: Dict) -> bool:
-    """
-    Сохраняет данные в JSON-файл
-    
-    Args:
-        file_path (str): Путь к файлу
-        data (Dict): Данные для сохранения
-        
-    Returns:
-        bool: True если успешно, иначе False
-    """
-    try:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return True
-    except Exception as e:
-        print(f"Ошибка при сохранении JSON: {str(e)}")
-        return False
 
 def load_json(file_path: str) -> Dict:
     """
@@ -52,7 +59,22 @@ def load_json(file_path: str) -> Dict:
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            content = f.read()
+            # Проверка на пустой файл
+            if not content.strip():
+                print(f"Пустой JSON файл: {file_path}")
+                return {}
+            return json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"Ошибка при загрузке JSON: {str(e)}")
+        # Попытка восстановить файл
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                print(f"Содержимое проблемного файла: {lines[:5]}")  # Вывод первых 5 строк для отладки
+        except Exception:
+            pass
+        return {}
     except Exception as e:
         print(f"Ошибка при загрузке JSON: {str(e)}")
         return {}
@@ -88,3 +110,4 @@ def format_duration(seconds: float) -> str:
     minutes = int(seconds // 60)
     seconds = int(seconds % 60)
     return f"{minutes:02d}:{seconds:02d}"
+

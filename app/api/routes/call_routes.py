@@ -15,6 +15,24 @@ from app.models.schemas import CallUpload, CallAnalysisResult, CallListItem
 from app.services.transcription_service import transcribe_audio
 from app.services.analysis_service import analyze_transcript
 from app.utils.file_utils import get_audio_duration, save_json, load_json, get_all_analysis_files
+# Добавьте следующие импорты в начало файла call_routes.py если они отсутствуют
+from pydantic import BaseModel
+from typing import List, Optional, Dict
+
+# Добавьте модели данных для комментариев
+class Comment(BaseModel):
+    """Модель комментария к звонку"""
+    id: str
+    text: str
+    comment: str
+    type: str  # 'good', 'bad', 'note'
+    created_at: str
+
+class CallComments(BaseModel):
+    """Список комментариев к звонку"""
+    call_id: str
+    comments: List[Comment]
+
 
 # Модели для комментариев
 class MomentComment(BaseModel):
@@ -377,110 +395,61 @@ async def get_call_progress_status(call_id: str):
     }
 
 
-@router.post("/calls/comments/{call_id}")
-async def save_call_comments(call_id: str, comments: CallComments):
-    """Сохраняет пользовательские комментарии к звонку"""
-    try:
-        # Загружаем существующий результат анализа
-        result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
-        
-        if not os.path.exists(result_path):
-            raise HTTPException(status_code=404, detail="Звонок не найден")
-        
-        # Загружаем существующий анализ
-        analysis = load_json(result_path)
-        
-        # Добавляем пользовательские комментарии
-        if "user_comments" not in analysis:
-            analysis["user_comments"] = {}
-        
-        analysis["user_comments"]["general_comment"] = comments.general_comment
-        
-        # Добавляем пользовательские моменты
-        if "user_moments" not in analysis:
-            analysis["user_moments"] = {
-                "best_moments": [],
-                "worst_moments": []
-            }
-        
-        # Обновляем лучшие моменты
-        user_best_moments = []
-        for moment in comments.best_moments:
-            user_best_moments.append(moment.dict())
-        analysis["user_moments"]["best_moments"] = user_best_moments
-        
-        # Обновляем худшие моменты
-        user_worst_moments = []
-        for moment in comments.worst_moments:
-            user_worst_moments.append(moment.dict())
-        analysis["user_moments"]["worst_moments"] = user_worst_moments
-        
-        # Сохраняем обновленный анализ
-        save_json(result_path, analysis)
-        
-        # Если включена опция добавления в тренировочную базу,
-        # сохраняем моменты в отдельный файл для обучения
-        training_moments = []
-        
-        for moment in comments.best_moments:
-            if moment.add_to_training:
-                training_moments.append({
-                    "type": "best",
-                    "text": moment.text,
-                    "comment": moment.comment,
-                    "call_id": call_id
-                })
-        
-        for moment in comments.worst_moments:
-            if moment.add_to_training:
-                training_moments.append({
-                    "type": "worst",
-                    "text": moment.text,
-                    "comment": moment.comment,
-                    "call_id": call_id
-                })
-        
-        if training_moments:
-            # Создаем директорию для тренировочных данных, если её нет
-            training_dir = os.path.join(os.getenv("RESULTS_DIR"), "training")
-            os.makedirs(training_dir, exist_ok=True)
-            
-            # Сохраняем моменты для обучения
-            training_path = os.path.join(training_dir, f"{call_id}_training.json")
-            save_json(training_path, {"moments": training_moments})
-        
-        return {"status": "success", "message": "Комментарии успешно сохранены"}
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка при сохранении комментариев: {str(e)}")
-
 @router.get("/calls/comments/{call_id}")
 async def get_call_comments(call_id: str):
-    """Получает пользовательские комментарии к звонку"""
-    try:
-        result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
-        
-        if not os.path.exists(result_path):
-            raise HTTPException(status_code=404, detail="Звонок не найден")
-        
-        # Загружаем анализ
-        analysis = load_json(result_path)
-        
-        # Извлекаем пользовательские комментарии
-        user_comments = {
-            "best_moments": [],
-            "worst_moments": [],
-            "general_comment": ""
-        }
-        
-        if "user_comments" in analysis:
-            user_comments["general_comment"] = analysis["user_comments"].get("general_comment", "")
-        
-        if "user_moments" in analysis:
-            user_comments["best_moments"] = analysis["user_moments"].get("best_moments", [])
-            user_comments["worst_moments"] = analysis["user_moments"].get("worst_moments", [])
-        
-        return user_comments
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка при получении комментариев: {str(e)}")
+    """Возвращает комментарии к звонку"""
+    comments_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_comments.json")
+    
+    if not os.path.exists(comments_path):
+        # Если файла с комментариями нет, возвращаем пустой список
+        return {"call_id": call_id, "comments": []}
+    
+    # Загружаем комментарии
+    comments = load_json(comments_path)
+    return comments
+
+@router.post("/calls/comments/{call_id}")
+async def add_call_comment(call_id: str, comment: Comment):
+    """Добавляет комментарий к звонку"""
+    comments_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_comments.json")
+    
+    # Загружаем существующие комментарии или создаем новый список
+    if os.path.exists(comments_path):
+        call_comments = load_json(comments_path)
+        comments = call_comments.get("comments", [])
+    else:
+        comments = []
+    
+    # Добавляем новый комментарий
+    comments.append(comment.dict())
+    
+    # Сохраняем обновленный список комментариев
+    call_comments = {"call_id": call_id, "comments": comments}
+    save_json(comments_path, call_comments)
+    
+    return {"status": "success", "comment_id": comment.id}
+
+@router.delete("/calls/comments/{call_id}/{comment_id}")
+async def delete_call_comment(call_id: str, comment_id: str):
+    """Удаляет комментарий к звонку"""
+    comments_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_comments.json")
+    
+    if not os.path.exists(comments_path):
+        raise HTTPException(status_code=404, detail="Комментарии не найдены")
+    
+    # Загружаем комментарии
+    call_comments = load_json(comments_path)
+    comments = call_comments.get("comments", [])
+    
+    # Удаляем комментарий по ID
+    updated_comments = [c for c in comments if c.get("id") != comment_id]
+    
+    # Если ничего не изменилось, значит комментарий не найден
+    if len(updated_comments) == len(comments):
+        raise HTTPException(status_code=404, detail="Комментарий не найден")
+    
+    # Сохраняем обновленный список комментариев
+    call_comments["comments"] = updated_comments
+    save_json(comments_path, call_comments)
+    
+    return {"status": "success", "message": "Комментарий успешно удален"}
