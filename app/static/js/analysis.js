@@ -70,6 +70,9 @@ function loadAnalysisSummary(analysis) {
 }
 
 // Функция для загрузки оценок по критериям
+// Обновите функцию loadScores в файле app/static/js/analysis.js
+
+// Функция для загрузки оценок по критериям
 function loadScores(score) {
     const scoresList = document.getElementById('scoresList');
     scoresList.innerHTML = '';
@@ -86,27 +89,51 @@ function loadScores(score) {
         const scoreData = score[item.key];
         if (!scoreData) return;
         
-        const scoreValue = scoreData.score || 0;
+        const scoreValue = scoreData.score;
         const comment = scoreData.comment || '';
         
         const listItem = document.createElement('li');
         listItem.className = 'list-group-item py-2';
-        listItem.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <strong>${item.name}</strong>
-                <span class="badge ${getScoreClass(scoreValue)} rounded-pill">${scoreValue.toFixed(1)}</span>
-            </div>
-            <div class="progress" style="height: 4px;">
-                <div class="progress-bar ${getScoreClass(scoreValue).replace('score-', 'bg-')}" 
-                    role="progressbar" 
-                    style="width: ${scoreValue * 10}%" 
-                    aria-valuenow="${scoreValue}" 
-                    aria-valuemin="0" 
-                    aria-valuemax="10">
+        
+        // Проверяем, является ли оценка null или "N/A" (не применимо)
+        if (scoreValue === null || scoreValue === "N/A") {
+            listItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>${item.name}</strong>
+                    <span class="badge score-not-applicable rounded-pill">N/A</span>
                 </div>
-            </div>
-            <p class="mb-0 small text-muted mt-1">${comment}</p>
-        `;
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-secondary" 
+                        role="progressbar" 
+                        style="width: 0%" 
+                        aria-valuenow="0" 
+                        aria-valuemin="0" 
+                        aria-valuemax="10">
+                    </div>
+                </div>
+                <p class="mb-0 small text-muted mt-1">${comment}</p>
+            `;
+        } else {
+            // Числовая оценка - обрабатываем как раньше
+            const numericScore = parseFloat(scoreValue) || 0;
+            listItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>${item.name}</strong>
+                    <span class="badge ${getScoreClass(numericScore)} rounded-pill">${numericScore.toFixed(1)}</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar ${getScoreClass(numericScore).replace('score-', 'bg-')}" 
+                        role="progressbar" 
+                        style="width: ${numericScore * 10}%" 
+                        aria-valuenow="${numericScore}" 
+                        aria-valuemin="0" 
+                        aria-valuemax="10">
+                    </div>
+                </div>
+                <p class="mb-0 small text-muted mt-1">${comment}</p>
+            `;
+        }
+        
         scoresList.appendChild(listItem);
     });
 }

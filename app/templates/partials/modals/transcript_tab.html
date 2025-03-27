@@ -1,0 +1,53 @@
+<div class="tab-pane fade" id="transcript" role="tabpanel" aria-labelledby="transcript-tab">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-chat-text me-2 text-primary"></i>
+                <h5 class="mb-0">Транскрипция разговора</h5>
+            </div>
+            <div>
+                <button id="enableSelectionBtn" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-highlighter me-1"></i> Выделить момент
+                </button>
+                <button id="cancelSelectionBtn" class="btn btn-sm btn-outline-secondary d-none">
+                    <i class="bi bi-x-circle me-1"></i> Отмена
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="transcriptContainer">
+                <div id="transcriptText" style="white-space: pre-wrap;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Форма для выделения момента (изначально скрыта) -->
+    <div id="momentForm" class="card mt-4 d-none">
+        <div class="card-header d-flex align-items-center">
+            <i class="bi bi-pencil-square me-2 text-primary"></i>
+            <h5 class="mb-0">Добавить комментарий к выделенному тексту</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="selectedText" class="form-label">Выделенный текст:</label>
+                <div id="selectedText"></div>
+            </div>
+            <div class="mb-3">
+                <label for="momentType" class="form-label">Тип момента:</label>
+                <select class="form-select" id="momentType">
+                    <option value="good">Хороший пример</option>
+                    <option value="bad">Требует улучшения</option>
+                    <option value="note">Нейтральная заметка</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="momentComment" class="form-label">Комментарий:</label>
+                <textarea class="form-control" id="momentComment" rows="3" placeholder="Почему это важный момент?"></textarea>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button id="cancelMomentBtn" class="btn btn-secondary me-2">Отмена</button>
+                <button id="saveMomentBtn" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>

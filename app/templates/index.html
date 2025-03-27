@@ -1,0 +1,37 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Анализатор звонков продажников{% endblock %}
+
+{% block content %}
+    <!-- Форма загрузки звонка -->
+    {% include "partials/upload_form.html" %}
+    
+    <!-- Прогресс анализа -->
+    {% include "partials/progress_tracker.html" %}
+    
+    <!-- Список звонков -->
+    {% include "partials/calls_list.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Обработчик события для поля поиска
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchCommentsInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                searchComments(this.value);
+            });
+        }
+        
+        // Установка активного класса на кнопках фильтрации
+        const filterButtons = document.querySelectorAll('.btn-group button[onclick^="filterComments"]');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

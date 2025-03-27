@@ -1,0 +1,20 @@
+<!-- Секция проанализированных звонков -->
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h2 class="fs-5 mb-0">Проанализированные звонки</h2>
+        <button id="refreshBtn" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-arrow-clockwise me-1"></i> Обновить
+        </button>
+    </div>
+    <div class="card-body">
+        <div id="callsList" class="row g-4">
+            <!-- Здесь будут звонки -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-3">Загрузка списка звонков...</p>
+            </div>
+        </div>
+    </div>
+</div>

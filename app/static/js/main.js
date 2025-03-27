@@ -85,6 +85,8 @@ function formatDate(dateString) {
 }
 
 // Обработчик отправки формы загрузки
+
+// Обработчик отправки формы загрузки
 async function uploadCall(e) {
     e.preventDefault();
     
@@ -101,7 +103,7 @@ async function uploadCall(e) {
     
     try {
         isUploading = true;
-        showLoading('Загрузка звонка', 'Отправка файла...');
+        showNotification('info', 'Начало загрузки', 'Файл звонка отправляется на сервер');
         
         // Формируем данные для отправки
         const formData = new FormData();
@@ -128,22 +130,18 @@ async function uploadCall(e) {
         
         const result = await response.json();
         
-        // Сохраняем ID звонка для отслеживания
-        uploadProgress.callId = result.call_id;
-        
-        showLoading('Анализ звонка', 'Это может занять несколько минут...');
-        showNotification('success', 'Файл загружен', 'Начинаем анализ звонка');
-        
-        // Запускаем отслеживание прогресса
-        startProgressTracking(result.call_id);
+        // Показываем прогресс анализа и запускаем трекер
+        ProgressTracker.startTracking(result.call_id);
         
         // Сбрасываем форму
         uploadForm.reset();
         
+        // Показываем уведомление
+        showNotification('success', 'Файл загружен', 'Начинаем анализ звонка');
+        
     } catch (error) {
         console.error('Ошибка при загрузке файла:', error);
         showNotification('error', 'Ошибка загрузки', error.message);
-        hideLoading();
         isUploading = false;
     }
 }

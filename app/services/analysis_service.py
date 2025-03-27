@@ -1,11 +1,10 @@
-# Добавьте эти импорты в начало файла app/services/analysis_service.py
-
 import os
 import json
 import time
 import requests
 from typing import Dict, List, Tuple, Any, Optional
 from dotenv import load_dotenv
+from app.prompts.analysis_prompt import get_analysis_prompt
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -104,80 +103,14 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None) -> 
         if call_id:
             log_progress(call_id, "Подготовка промпта для анализа", "analysis")
         
-        # Формируем промпт для анализа
+        # Формируем системное сообщение
         system_message = """
         Ты - эксперт по анализу продаж и качества обслуживания. Твоя задача - проанализировать транскрипцию звонка продажника с клиентом.
         Ты должен вернуть результат анализа только в JSON формате, без дополнительного текста.
         """
         
-        user_message = f"""
-        Проанализируй следующую транскрипцию звонка продажника с клиентом и дай подробный анализ. 
-        Оцени по шкале от 0 до 10 следующие аспекты:
-        1. Соблюдение скрипта продаж (script_adherence)
-        2. Активное слушание (active_listening)
-        3. Работа с возражениями (objection_handling)
-        4. Применение техник продаж (sales_techniques)
-        5. Этика общения (communication_ethics)
-        
-        Также выдели:
-        - Анализ по этапам разговора (greeting, needs_identification, presentation, objection_handling, closing)
-        - 3-5 лучших моментов в разговоре с комментариями
-        - 3-5 моментов, требующих улучшения, с комментариями
-        - 3-5 конкретных рекомендаций для продажника
-        
-        Верни результат строго в формате JSON:
-        {{
-            "analysis": {{
-                "greeting": "Анализ приветствия",
-                "needs_identification": "Анализ выявления потребностей",
-                "presentation": "Анализ презентации продукта",
-                "objection_handling": "Анализ работы с возражениями",
-                "closing": "Анализ закрытия сделки"
-            }},
-            "score": {{
-                "script_adherence": {{
-                    "score": 0-10,
-                    "comment": "Комментарий к оценке"
-                }},
-                "active_listening": {{
-                    "score": 0-10,
-                    "comment": "Комментарий к оценке"
-                }},
-                "objection_handling": {{
-                    "score": 0-10,
-                    "comment": "Комментарий к оценке"
-                }},
-                "sales_techniques": {{
-                    "score": 0-10,
-                    "comment": "Комментарий к оценке"
-                }},
-                "communication_ethics": {{
-                    "score": 0-10,
-                    "comment": "Комментарий к оценке"
-                }},
-                "overall": 0-10
-            }},
-            "best_moments": [
-                {{
-                    "text": "Цитата из разговора",
-                    "comment": "Почему это хороший момент"
-                }}
-            ],
-            "worst_moments": [
-                {{
-                    "text": "Цитата из разговора",
-                    "comment": "Почему это проблемный момент"
-                }}
-            ],
-            "recommendations": [
-                "Рекомендация 1",
-                "Рекомендация 2"
-            ]
-        }}
-        
-        Вот транскрипция звонка:
-        {transcript}
-        """
+        # Получаем пользовательский промпт из модуля промптов
+        user_message = get_analysis_prompt(transcript)
         
         # Подготовка данных для запроса
         payload = {
@@ -213,25 +146,38 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None) -> 
             worst_moments = result_json.get("worst_moments", [])
             recommendations = result_json.get("recommendations", [])
             
+            # Рассчитываем общую оценку, исключая "N/A" оценки
+            criterion_scores = []
+            
+            # Проходим по всем критериям и добавляем числовые оценки
+            for criterion in ["script_adherence", "active_listening", "sales_techniques", "communication_ethics"]:
+                if criterion in score and "score" in score[criterion]:
+                    criterion_score = score[criterion]["score"]
+                    if isinstance(criterion_score, (int, float)):
+                        criterion_scores.append(criterion_score)
+            
+            # Проверяем оценку за обработку возражений
+            objection_criterion = "objection_handling"
+            if objection_criterion in score and "score" in score[objection_criterion]:
+                objection_score = score[objection_criterion]["score"]
+                # Только если это числовое значение, а не "N/A"
+                if objection_score != "N/A" and isinstance(objection_score, (int, float)):
+                    criterion_scores.append(objection_score)
+            
+            # Рассчитываем средний балл, если есть оценки
+            if criterion_scores:
+                overall_score = round(sum(criterion_scores) / len(criterion_scores), 1)
+            else:
+                overall_score = 0  # На случай, если нет критериев
+            
+            # Добавляем общую оценку
+            score["overall"] = overall_score
+            
             if call_id:
                 log_progress(call_id, f"Общая оценка звонка: {score.get('overall', 'N/A')}/10")
                 log_progress(call_id, f"Выявлено {len(best_moments)} сильных и {len(worst_moments)} слабых моментов")
                 log_progress(call_id, f"Подготовлено {len(recommendations)} рекомендаций")
                 log_progress(call_id, "Формирование итогового отчета", "finalizing")
-            
-            # При необходимости, добавляем расчет общей оценки
-            if "overall" not in score:
-                # Вычисляем среднюю оценку по всем критериям
-                criterion_scores = [
-                    score.get("script_adherence", {}).get("score", 0),
-                    score.get("active_listening", {}).get("score", 0),
-                    score.get("objection_handling", {}).get("score", 0),
-                    score.get("sales_techniques", {}).get("score", 0),
-                    score.get("communication_ethics", {}).get("score", 0)
-                ]
-                score["overall"] = round(sum(criterion_scores) / len(criterion_scores), 1)
-            
-            if call_id:
                 log_progress(call_id, "Анализ успешно завершен", "completed")
             
             return analysis, score, best_moments, worst_moments, recommendations
@@ -257,10 +203,13 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None) -> 
             "closing": "Не удалось проанализировать"
         }
         
+        if "objection_handling" in score and score["objection_handling"].get("score") == "N/A":
+            score["objection_handling"]["score"] = None
+        
         default_score = {
             "script_adherence": {"score": 5.0, "comment": "Автоматическая оценка из-за ошибки"},
             "active_listening": {"score": 5.0, "comment": "Автоматическая оценка из-за ошибки"},
-            "objection_handling": {"score": 5.0, "comment": "Автоматическая оценка из-за ошибки"},
+            "objection_handling": {"score": "N/A", "comment": "Не удалось проанализировать"},
             "sales_techniques": {"score": 5.0, "comment": "Автоматическая оценка из-за ошибки"},
             "communication_ethics": {"score": 5.0, "comment": "Автоматическая оценка из-за ошибки"},
             "overall": 5.0

@@ -1,0 +1,74 @@
+<!-- Секция прогресса анализа звонка -->
+<div class="card mb-4" id="analysisProgressContainer" style="display:none;">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h2 class="fs-5 mb-0">Анализ звонка в процессе</h2>
+      <button id="cancelAnalysisBtn" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-x-circle me-1"></i> Отменить
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="progress-tracker">
+        <div class="d-flex justify-content-between mb-2">
+          <div>
+            <h5 id="progressTitle">Загрузка звонка...</h5>
+            <p id="progressDescription" class="text-muted mb-0">Пожалуйста, подождите</p>
+          </div>
+          <div>
+            <span id="progressPercentage" class="badge bg-primary">0%</span>
+          </div>
+        </div>
+        <div class="progress mb-3" style="height: 8px;">
+          <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+        </div>
+        
+        <div class="analysis-steps mt-4">
+          <div class="d-flex justify-content-between">
+            <div class="analysis-step active" id="step-upload">
+              <div class="step-icon">
+                <i class="bi bi-cloud-upload"></i>
+              </div>
+              <div class="step-label">Загрузка файла</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="analysis-step" id="step-transcription">
+              <div class="step-icon">
+                <i class="bi bi-file-text"></i>
+              </div>
+              <div class="step-label">Транскрипция</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="analysis-step" id="step-analysis">
+              <div class="step-icon">
+                <i class="bi bi-bar-chart"></i>
+              </div>
+              <div class="step-label">Анализ</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="analysis-step" id="step-completion">
+              <div class="step-icon">
+                <i class="bi bi-check-circle"></i>
+              </div>
+              <div class="step-label">Завершение</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="logs-container mt-4">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <h6 class="mb-0">Лог операций</h6>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoScrollLogs" checked>
+                <label class="form-check-label" for="autoScrollLogs">Автопрокрутка</label>
+              </div>
+            </div>
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+              <div id="logsList" class="logs-list">
+                <!-- Здесь будут логи -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

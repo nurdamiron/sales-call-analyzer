@@ -1,0 +1,47 @@
+<div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-bookmark me-2 text-primary"></i>
+            <h5 class="mb-0">Все комментарии и отметки</h5>
+        </div>
+        <button id="exportCommentsBtn" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-download me-1"></i> Экспорт
+        </button>
+    </div>
+    
+    <!-- Фильтры и поиск для комментариев -->
+    <div class="d-flex flex-wrap align-items-center mb-3">
+        <div class="btn-group me-3">
+            <button class="btn btn-sm btn-outline-secondary active" onclick="filterComments('all')">
+                Все
+            </button>
+            <button class="btn btn-sm btn-outline-success" onclick="filterComments('good')">
+                Хорошие
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="filterComments('bad')">
+                Проблемные
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="filterComments('note')">
+                Заметки
+            </button>
+        </div>
+        <div class="input-group" style="max-width: 300px;">
+            <input type="text" id="searchCommentsInput" class="form-control form-control-sm" 
+                  placeholder="Поиск в комментариях...">
+            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="searchComments(document.getElementById('searchCommentsInput').value)">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="commentsContainer">
+        <div class="alert alert-info" id="noCommentsMessage">
+            <i class="bi bi-info-circle me-2"></i>
+            Нет добавленных комментариев. Перейдите на вкладку "Транскрипция", 
+            чтобы выделять важные моменты и добавлять комментарии.
+        </div>
+        
+        <!-- Список комментариев будет добавлен здесь -->
+        <div id="commentsList"></div>
+    </div>
+</div>

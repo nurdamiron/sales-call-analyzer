@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from datetime import datetime
 
 class CallUpload(BaseModel):
@@ -11,7 +11,7 @@ class CallUpload(BaseModel):
 
 class ScoreItem(BaseModel):
     """Оценка по отдельному критерию"""
-    score: float = Field(..., ge=0, le=10)
+    score: Union[float, None] = Field(..., ge=0, le=10, description="Оценка от 0 до 10 или None если критерий не применим")
     comment: Optional[str] = None
 
 class CallScore(BaseModel):

@@ -1,0 +1,43 @@
+<!-- Секция загрузки нового звонка -->
+<div class="upload-section">
+    <div class="upload-header">
+        <h2 class="upload-title">Загрузить новый звонок</h2>
+        <p class="upload-description">Загрузите аудиофайл звонка для анализа и получения рекомендаций</p>
+    </div>
+    <form id="uploadForm">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="callFile" class="form-label">Файл звонка</label>
+                    <input class="form-control" type="file" id="callFile" accept=".mp3,.wav,.m4a,.ogg">
+                    <div class="form-text">Поддерживаемые форматы: MP3, WAV, M4A, OGG</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="agentName" class="form-label">Имя продажника</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" class="form-control" id="agentName" placeholder="Введите имя продажника">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="clientId" class="form-label">ID клиента (опционально)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-building"></i></span>
+                        <input type="text" class="form-control" id="clientId" placeholder="Введите ID клиента">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="callNotes" class="form-label">Примечания (опционально)</label>
+            <textarea class="form-control" id="callNotes" rows="2" placeholder="Добавьте дополнительные заметки о звонке"></textarea>
+        </div>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cloud-upload me-2"></i>Загрузить и анализировать
+            </button>
+        </div>
+    </form>
+</div>

@@ -638,3 +638,14 @@
   .notification-close:hover {
     color: #94a3b8;
   }
+
+  /* Стиль для отметки "Не применимо" (N/A) */
+.score-not-applicable {
+    background-color: #95a5a6; /* Серый цвет для N/A */
+    color: white;
+  }
+  
+  /* Обновление для прогресс-бара */
+  .progress .bg-secondary {
+    background-color: #e2e8f0 !important; /* Светло-серый фон для N/A прогресс-бара */
+  }

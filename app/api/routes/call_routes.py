@@ -285,7 +285,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
         save_json(result_path, result.dict())
         log_progress(call_id, "Анализ успешно завершен", "completed")
-        
+
         
         # Удаляем файл-маркер обработки
         if os.path.exists(processing_path):
@@ -454,3 +454,28 @@ async def delete_call_comment(call_id: str, comment_id: str):
     save_json(comments_path, call_comments)
     
     return {"status": "success", "message": "Комментарий успешно удален"}
+
+@router.post("/calls/cancel/{call_id}")
+async def cancel_call_analysis(call_id: str):
+    """Отменяет процесс анализа звонка"""
+    progress_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_progress.json")
+    processing_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_processing")
+    
+    # Проверяем, существует ли процесс анализа
+    if not os.path.exists(processing_path):
+        raise HTTPException(status_code=404, detail="Анализ не найден или уже завершен")
+    
+    try:
+        # Создаем отметку об отмене
+        log_progress(call_id, "Анализ отменен пользователем", "cancelled")
+        
+        # Удаляем файл-маркер обработки
+        if os.path.exists(processing_path):
+            os.remove(processing_path)
+            
+        # Можно добавить дополнительную логику для остановки фоновых задач,
+        # если это необходимо
+        
+        return {"status": "success", "message": "Анализ успешно отменен"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при отмене анализа: {str(e)}")

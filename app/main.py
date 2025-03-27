@@ -3,6 +3,8 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates # Добавляем импорт
+from fastapi import Request # Добавляем импорт
 from dotenv import load_dotenv
 
 # Загрузка переменных окружения
@@ -30,19 +32,21 @@ app.add_middleware(
 # Подключение статичных файлов
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+templates = Jinja2Templates(directory="app/templates")
+
 # Подключение маршрутов
 app.include_router(call_routes.router, prefix="/api", tags=["calls"])
 
 # Создание необходимых директорий при старте
 @app.on_event("startup")
 async def startup_event():
-    os.makedirs(os.getenv("UPLOAD_DIR"), exist_ok=True)
-    os.makedirs(os.getenv("RESULTS_DIR"), exist_ok=True)
+    os.makedirs(os.getenv("UPLOAD_DIR", "app/static/uploads"), exist_ok=True)
+    os.makedirs(os.getenv("RESULTS_DIR", "app/static/results"), exist_ok=True)
 
 # Корневой маршрут
 @app.get("/")
-async def root():
-    return {"message": "Добро пожаловать в API анализа звонков продажников"}
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # Запуск сервера
 if __name__ == "__main__":
