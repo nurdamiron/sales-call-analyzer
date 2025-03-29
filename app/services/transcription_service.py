@@ -205,7 +205,7 @@ async def transcribe_audio(file_path: str, call_id: Optional[str] = None) -> str
         # В случае ошибки возвращаем заглушку
         return "Не удалось транскрибировать аудио"
 
-async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = None, language: Optional[str] = None) -> str:
+async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = None) -> str:
     """
     Расширенная транскрипция с дополнительной обработкой и проверками
     """
@@ -227,6 +227,12 @@ async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = Non
         processed_file = f"{file_path}_processed.mp3"
         normalized_audio.export(processed_file, format="mp3")
         
+        # Определение языка аудио
+        from app.services.language_detection import detect_audio_language
+        log_progress(call_id, "Определение языка аудио...", "language_detection")
+        language = detect_audio_language(file_path, call_id)
+        log_progress(call_id, f"Определен язык: {language}")
+        
         # Разделение на сегменты для более точной транскрипции
         if len(normalized_audio) > 300000:  # Более 5 минут
             log_progress(call_id, "Разделяем аудио на сегменты для более точной транскрипции")
@@ -244,7 +250,7 @@ async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = Non
             transcriptions = []
             for i, segment_file in enumerate(segments):
                 log_progress(call_id, f"Транскрибирование сегмента {i+1}/{len(segments)}")
-                segment_transcript = await transcribe_audio(segment_file, None, language)
+                segment_transcript = await transcribe_audio(segment_file, None)  # Только 2 аргумента!
                 transcriptions.append(segment_transcript)
                 
                 # Удаляем временный файл
@@ -257,8 +263,8 @@ async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = Non
             full_transcript = " ".join(transcriptions)
             
         else:
-            # Транскрибируем файл целиком если он не слишком длинный
-            full_transcript = await transcribe_audio(processed_file, None, language)
+            # Транскрибируем файл целиком
+            full_transcript = await transcribe_audio(processed_file, None)  # Только 2 аргумента!
         
         # Удаляем временный файл
         try:
@@ -266,7 +272,7 @@ async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = Non
         except:
             pass
         
-        # Постобработка транскрипции
+        # Постобработка транскрипции в зависимости от языка
         if language == "kk":
             # Специфические замены для казахского языка
             replacements = [
@@ -294,4 +300,4 @@ async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = Non
         print(error_msg)
         
         # В случае ошибки пробуем простую транскрипцию
-        return await transcribe_audio(file_path, call_id, language)
+        return await transcribe_audio(file_path, call_id)

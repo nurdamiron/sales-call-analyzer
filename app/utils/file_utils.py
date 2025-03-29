@@ -65,19 +65,22 @@ def load_json(file_path: str) -> Dict:
             if not content.strip():
                 print(f"Пустой JSON файл: {file_path}")
                 return {}
-            return json.loads(content)
-    except json.JSONDecodeError as e:
-        print(f"Ошибка при загрузке JSON: {str(e)}")
-        # Попытка восстановить файл
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                print(f"Содержимое проблемного файла: {lines[:5]}")  # Вывод первых 5 строк для отладки
-        except Exception:
-            pass
-        return {}
+                
+            # Пробуем загрузить JSON
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError as e:
+                print(f"Ошибка при загрузке JSON: {str(e)}")
+                # Выводим первые несколько строк для отладки
+                with open(file_path, 'r', encoding='utf-8') as debug_f:
+                    lines = debug_f.readlines()[:5]  # Первые 5 строк
+                    print(f"Содержимое проблемного файла: {lines}")
+                
+                # Возвращаем пустой объект вместо ошибки
+                return {}
+                
     except Exception as e:
-        print(f"Ошибка при загрузке JSON: {str(e)}")
+        print(f"Ошибка при загрузке файла: {str(e)}")
         return {}
 
 def get_all_analysis_files(directory: str) -> List[str]:
@@ -90,11 +93,14 @@ def get_all_analysis_files(directory: str) -> List[str]:
     Returns:
         List[str]: Список путей к файлам
     """
-    # Ищем все JSON-файлы, которые не являются файлами ошибок
+    # Ищем все JSON-файлы, которые не содержат '_progress' и '_error' в названии
     files = glob.glob(os.path.join(directory, "*.json"))
     
-    # Исключаем файлы с ошибками
-    files = [f for f in files if not f.endswith("_error.json")]
+    # Исключаем файлы прогресса и ошибок
+    files = [f for f in files if 
+             not f.endswith("_progress.json") and 
+             not f.endswith("_error.json") and 
+             not "_processing" in f]
     
     return files
 

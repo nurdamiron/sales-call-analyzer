@@ -170,8 +170,15 @@ function cancelMomentForm() {
 async function saveMoment() {
     if (!currentSelection) return;
     
-    const momentType = document.getElementById('momentType').value;
-    const momentComment = document.getElementById('momentComment').value.trim();
+    const momentTypeElement = document.getElementById('momentType');
+    const momentCommentElement = document.getElementById('momentComment');
+    
+    if (!momentTypeElement || !momentCommentElement) {
+        showNotification('error', 'Ошибка', 'Элементы формы не найдены');
+        return;
+    }
+    const momentType = momentTypeElement.value;
+    const momentComment = momentCommentElement.value.trim();
     
     if (!momentComment) {
         showNotification('warning', 'Внимание', 'Пожалуйста, добавьте комментарий к выделенному тексту');

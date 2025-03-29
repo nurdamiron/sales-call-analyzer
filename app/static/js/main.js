@@ -108,11 +108,14 @@ async function uploadCall(e) {
         return;
     }
     
-    const callFile = document.getElementById('callFile').files[0];
-    if (!callFile) {
+    // Проверяем наличие файла
+    const callFileInput = document.getElementById('callFile');
+    if (!callFileInput || !callFileInput.files || callFileInput.files.length === 0) {
         showNotification('error', 'Ошибка', 'Пожалуйста, выберите файл звонка');
         return;
     }
+    
+    const callFile = callFileInput.files[0];
     
     try {
         isUploading = true;
@@ -122,12 +125,11 @@ async function uploadCall(e) {
         const formData = new FormData();
         formData.append('file', callFile);
         
-        // Добавляем метаданные
+        // Добавляем метаданные с проверками на null
         const metadata = {
-            agent_name: document.getElementById('agentName').value.trim(),
-            client_id: document.getElementById('clientId').value.trim(),
-            notes: document.getElementById('callNotes').value.trim(),
-            language: document.getElementById('language').value
+            agent_name: document.getElementById('agentName')?.value?.trim() || '',
+            client_id: document.getElementById('clientId')?.value?.trim() || '',
+            notes: document.getElementById('callNotes')?.value?.trim() || ''
         };
         
         formData.append('call_data', JSON.stringify(metadata));
@@ -154,14 +156,16 @@ async function uploadCall(e) {
         }
         
         // Сбрасываем форму
-        uploadForm.reset();
+        if (uploadForm) {
+            uploadForm.reset();
+        }
         
         // Показываем уведомление
         showNotification('success', 'Файл загружен', 'Начинаем анализ звонка');
         
     } catch (error) {
         console.error('Ошибка при загрузке файла:', error);
-        showNotification('error', 'Ошибка загрузки', error.message);
+        showNotification('error', 'Ошибка загрузки', error.message || 'Неизвестная ошибка при загрузке');
     } finally {
         isUploading = false;
     }
@@ -336,8 +340,8 @@ function renderCallsList(calls) {
             
             // Отображаем язык
             if (languageElement) {
-                const language = call.metadata?.language || call.language || 'ru';
-                const languageLabel = language === 'kk' ? 'Казахский' : 'Русский';
+                const language = call.metadata?.detected_language || call.language || 'ru';
+                const languageLabel = language === 'kk' ? 'Казахский (автоопределен)' : 'Русский (автоопределен)';
                 languageElement.textContent = languageLabel;
             }
             

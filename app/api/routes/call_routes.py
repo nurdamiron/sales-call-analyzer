@@ -12,7 +12,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional
 from app.models.schemas import CallUpload, CallAnalysisResult, CallListItem
-from app.services.transcription_service import transcribe_audio
+from app.services.transcription_service import transcribe_audio_advanced
 from app.services.analysis_service import analyze_transcript
 from app.utils.file_utils import get_audio_duration, save_json, load_json, get_all_analysis_files
 # Добавьте следующие импорты в начало файла call_routes.py если они отсутствуют
@@ -184,17 +184,38 @@ async def list_calls():
     
     for file_path in analysis_files:
         try:
+            # Убедитесь, что это не файл прогресса
+            if "_progress" in file_path or "_error" in file_path:
+                continue
+                
             analysis = load_json(file_path)
+            
+            # Проверяем наличие обязательных полей
+            if not analysis.get("call_id"):
+                print(f"Пропускаем файл без call_id: {file_path}")
+                continue
+                
+            # Получаем created_at или используем текущее время
+            created_at = datetime.now()
+            try:
+                if analysis.get("created_at"):
+                    created_at = datetime.fromisoformat(analysis["created_at"])
+            except (ValueError, TypeError):
+                print(f"Неверный формат даты в {file_path}, используем текущую дату")
+            
+            # Получаем метаданные, если они есть
+            metadata = analysis.get("metadata", {}) or {}
+            
             calls.append(CallListItem(
-                call_id=analysis["call_id"],
-                created_at=datetime.fromisoformat(analysis["created_at"]),
-                agent_name=analysis.get("metadata", {}).get("agent_name"),
-                duration=analysis.get("duration"),
-                overall_score=analysis["score"]["overall"],
-                file_name=os.path.basename(analysis["file_path"])
+                call_id=analysis.get("call_id", ""),
+                created_at=created_at,
+                agent_name=metadata.get("agent_name", ""),
+                duration=analysis.get("duration", 0),
+                overall_score=analysis.get("score", {}).get("overall", 0),
+                file_name=os.path.basename(analysis.get("file_path", "unknown"))
             ))
         except Exception as e:
-            # Пропускаем файлы с ошибками
+            print(f"Ошибка при обработке файла {file_path}: {str(e)}")
             continue
     
     # Сортируем звонки по дате (новые сначала)
@@ -244,6 +265,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
                 "step": "initialization"
             }]
         }
+        
         with open(progress_file, 'w', encoding='utf-8') as f:
             json.dump(initial_progress, f, ensure_ascii=False, indent=2)
         
@@ -258,33 +280,31 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         duration = get_audio_duration(file_path)
         log_progress(call_id, f"Длительность аудио: {duration:.2f} секунд")
         
-        # Автоматическое определение языка аудио
-        from app.services.language_detection import detect_audio_language
-        language = metadata.get('language')
+        # Транскрибируем аудио с продвинутой обработкой
+        transcript = await transcribe_audio_advanced(file_path, call_id)
+
         
-        # Если язык не был указан пользователем, определяем автоматически
-        if not language or language == 'auto':
-            log_progress(call_id, "Определение языка аудио...")
-            language = detect_audio_language(file_path, call_id)
-            metadata['detected_language'] = language
-            log_progress(call_id, f"Определен язык: {language}")
-        
-        # Транскрибируем аудио с учетом языка
-        transcript = await transcribe_audio(file_path, call_id, language)
-        
-        # Выбираем подходящую модель для транскрипции в зависимости от языка и длительности
-        if duration > 600:  # Для длинных звонков (более 10 минут)
-            log_progress(call_id, "Используем продвинутую модель для анализа длинного звонка")
-            analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript_advanced(
-                transcript, call_id, language
-            )
+        # Обнаруживаем язык из транскрипции, если он не определен ранее
+        if "detected_language" not in metadata or not metadata["detected_language"]:
+            # Простой подход к определению языка из текста
+            # Можно заменить на более сложный алгоритм
+            kz_chars = set("ңғәіңөұқ")
+            if any(char in kz_chars for char in transcript.lower()):
+                language = "kk"
+            else:
+                language = "ru"
+            metadata["detected_language"] = language
+            log_progress(call_id, f"Определен язык из текста: {language}")
         else:
-            # Стандартный анализ с учетом языка
-            analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript(
-                transcript, call_id, language
-            )
+            language = metadata["detected_language"]
         
-        # Разделение диалога на реплики с учетом языка
+        # Анализ с учетом языка
+        log_progress(call_id, "Анализ транскрипции звонка...", "analysis")
+        analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript(
+            transcript, call_id, language
+        )
+        
+        # Разделение диалога на реплики
         log_progress(call_id, "Разделение диалога на реплики", "dialogue_splitting")
         dialogue = dialogue_splitter.split_dialogue(transcript, language)
         
@@ -295,8 +315,8 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
             file_path=file_path,
             duration=duration,
             transcript=transcript,
-            analysis=analysis,
             dialogue=dialogue,
+            analysis=analysis,
             score=score,
             best_moments=best_moments,
             worst_moments=worst_moments,
@@ -334,93 +354,106 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
 
 @router.get("/calls/progress/{call_id}")
 async def get_call_progress_status(call_id: str):
-    """Возвращает информацию о текущем прогрессе анализа звонка"""
-    result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
+    """Проверяет статус анализа звонка"""
     progress_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_progress.json")
     error_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_error.log")
+    result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
     processing_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_processing")
     
-    # Проверяем, завершен ли анализ
-    if os.path.exists(result_path):
-        return {
-            "status": "completed",
-            "progress": 100,
-            "message": "Анализ успешно завершен",
-            "logs": ["Анализ успешно завершен"]
-        }
-    
-    # Проверяем наличие лог-файла с прогрессом
-    if os.path.exists(progress_path):
-        try:
-            progress_data = load_json(progress_path)
-            
-            # Вычисляем примерный процент выполнения
-            progress_percent = 0
-            current_step = progress_data.get("current_step", "")
-            
-            # Примерная оценка прогресса по этапам
-            step_percentages = {
-                "initialization": 0,
-                "file_processing": 10,
-                "transcription_start": 20,
-                "transcription": 40,
-                "analysis_start": 50,
-                "analysis": 80,
-                "finalizing": 90,
-                "completed": 100,
-                "error": 0
-            }
-            
-            if current_step in step_percentages:
-                progress_percent = step_percentages[current_step]
-            
-            # Извлекаем историю сообщений
-            logs = []
-            for msg in progress_data.get("messages", []):
-                timestamp = datetime.fromtimestamp(msg.get("timestamp", 0)).strftime("%H:%M:%S")
-                logs.append(f"[{timestamp}] {msg.get('message', '')}")
+    try:
+        # Проверяем, завершен ли анализ
+        if os.path.exists(result_path):
+            return {"status": "completed", "progress": 100, "message": "Анализ успешно завершен"}
+        
+        # Проверяем, не произошла ли ошибка
+        if os.path.exists(error_path):
+            try:
+                with open(error_path, 'r', encoding='utf-8') as f:
+                    error_text = f.read(500)  # Читаем первые 500 символов
+                return {
+                    "status": "error",
+                    "progress": 0,
+                    "message": f"Ошибка при анализе: {error_text}...",
+                    "logs": [f"Ошибка: {error_text}..."]
+                }
+            except Exception:
+                return {"status": "error", "progress": 0, "message": "Неизвестная ошибка при анализе"}
+        
+        # Проверяем файл прогресса
+        if os.path.exists(progress_path):
+            try:
+                with open(progress_path, 'r', encoding='utf-8') as f:
+                    progress_data = json.load(f)
                 
+                # Определяем процент выполнения по шагу
+                current_step = progress_data.get("current_step", "initialization")
+                step_percentages = {
+                    "initialization": 5,
+                    "file_processing": 10,
+                    "transcription_start": 20,
+                    "transcription": 40,
+                    "language_detection": 30,
+                    "transcription_complete": 50, 
+                    "analysis_start": 60,
+                    "analysis": 80,
+                    "dialogue_splitting": 85,
+                    "finalizing": 90,
+                    "completed": 100,
+                    "error": 0
+                }
+                
+                progress_percent = step_percentages.get(current_step, 10)
+                
+                # Извлекаем историю сообщений
+                logs = []
+                for msg in progress_data.get("messages", []):
+                    try:
+                        timestamp = datetime.fromtimestamp(msg.get("timestamp", 0)).strftime("%H:%M:%S")
+                        logs.append(f"[{timestamp}] {msg.get('message', '')}")
+                    except Exception:
+                        # В случае ошибки добавляем сообщение без временной метки
+                        logs.append(msg.get('message', ''))
+                
+                return {
+                    "status": "processing",
+                    "progress": progress_percent,
+                    "message": progress_data.get("current_message", "Обработка в процессе..."),
+                    "current_step": current_step,
+                    "logs": logs
+                }
+            except json.JSONDecodeError:
+                # Если файл JSON поврежден, считаем, что обработка идет
+                return {
+                    "status": "processing",
+                    "progress": 10,
+                    "message": "Начальная обработка...",
+                    "logs": ["Файл прогресса поврежден, но обработка продолжается"]
+                }
+        
+        # Проверяем, находится ли звонок в обработке
+        if os.path.exists(processing_path):
             return {
-                "status": "processing",
-                "progress": progress_percent,
-                "message": progress_data.get("current_message", "Обработка в процессе..."),
-                "current_step": current_step,
-                "logs": logs
+                "status": "waiting",
+                "progress": 5,
+                "message": "Ожидание начала обработки...",
+                "logs": ["Файл загружен, ожидание начала анализа"]
             }
-        except Exception as e:
-            print(f"Ошибка при чтении файла прогресса: {str(e)}")
-    
-    # Проверяем, не произошла ли ошибка
-    if os.path.exists(error_path):
-        try:
-            with open(error_path, 'r', encoding='utf-8') as f:
-                error_text = f.read()
-            return {
-                "status": "error",
-                "progress": 0,
-                "message": f"Ошибка при анализе: {error_text[:100]}...",
-                "logs": [f"Ошибка: {error_text[:500]}..."]
-            }
-        except Exception as e:
-            print(f"Ошибка при чтении файла ошибки: {str(e)}")
-    
-    # Проверяем, находится ли звонок в обработке
-    if os.path.exists(processing_path):
+        
+        # Если ничего не найдено
         return {
-            "status": "waiting",
-            "progress": 5,
-            "message": "Ожидание начала обработки...",
-            "logs": ["Файл загружен, ожидание начала анализа"]
+            "status": "not_found",
+            "progress": 0,
+            "message": "Звонок не найден",
+            "logs": []
         }
-    
-    # Если ничего не найдено
-    return {
-        "status": "not_found",
-        "progress": 0,
-        "message": "Звонок не найден",
-        "logs": []
-    }
-
+    except Exception as e:
+        print(f"Ошибка при проверке прогресса: {str(e)}")
+        return {
+            "status": "error",
+            "progress": 0,
+            "message": f"Ошибка при проверке прогресса: {str(e)}",
+            "logs": [f"Ошибка: {str(e)}"]
+        }
 
 @router.get("/calls/comments/{call_id}")
 async def get_call_comments(call_id: str):
