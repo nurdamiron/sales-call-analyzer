@@ -1,18 +1,24 @@
+// Обновленный main.js с поддержкой фильтрации и сортировки
+
 // Базовый URL API
 const API_BASE_URL = '/api';
 
 // Переменные состояния
 let isUploading = false;
 let uploadProgress = { callId: null, interval: null };
+let allCalls = []; // Все загруженные звонки
 
 // Получение элементов DOM
 const uploadForm = document.getElementById('uploadForm');
 const callsList = document.getElementById('callsList');
 const refreshBtn = document.getElementById('refreshBtn');
 const loadingSpinner = document.getElementById('loadingSpinner');
+const languageFilter = document.getElementById('languageFilter');
+const sortFilter = document.getElementById('sortFilter');
 
 // Модальное окно анализа
-const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
+const analysisModal = document.getElementById('analysisModal') ? 
+    new bootstrap.Modal(document.getElementById('analysisModal')) : null;
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', function() {
@@ -23,6 +29,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (refreshBtn) {
         refreshBtn.addEventListener('click', loadCallsList);
+    }
+    
+    // Обработчики для фильтров
+    if (languageFilter) {
+        languageFilter.addEventListener('change', applyFiltersAndSort);
+    }
+    
+    if (sortFilter) {
+        sortFilter.addEventListener('change', applyFiltersAndSort);
     }
     
     // Загрузка списка звонков
@@ -85,8 +100,6 @@ function formatDate(dateString) {
 }
 
 // Обработчик отправки формы загрузки
-
-// Обработчик отправки формы загрузки
 async function uploadCall(e) {
     e.preventDefault();
     
@@ -113,7 +126,8 @@ async function uploadCall(e) {
         const metadata = {
             agent_name: document.getElementById('agentName').value.trim(),
             client_id: document.getElementById('clientId').value.trim(),
-            notes: document.getElementById('callNotes').value.trim()
+            notes: document.getElementById('callNotes').value.trim(),
+            language: document.getElementById('language').value
         };
         
         formData.append('call_data', JSON.stringify(metadata));
@@ -131,7 +145,13 @@ async function uploadCall(e) {
         const result = await response.json();
         
         // Показываем прогресс анализа и запускаем трекер
-        ProgressTracker.startTracking(result.call_id);
+        if (typeof ProgressTracker !== 'undefined' && ProgressTracker.startTracking) {
+            ProgressTracker.startTracking(result.call_id);
+        } else {
+            // Старый способ отслеживания
+            uploadProgress.callId = result.call_id;
+            startProgressTracking(result.call_id);
+        }
         
         // Сбрасываем форму
         uploadForm.reset();
@@ -142,11 +162,12 @@ async function uploadCall(e) {
     } catch (error) {
         console.error('Ошибка при загрузке файла:', error);
         showNotification('error', 'Ошибка загрузки', error.message);
+    } finally {
         isUploading = false;
     }
 }
 
-// Функция для отслеживания прогресса анализа
+// Функция для отслеживания прогресса анализа (для обратной совместимости)
 function startProgressTracking(callId) {
     // Очищаем предыдущий интервал, если он был
     if (uploadProgress.interval) {
@@ -195,7 +216,7 @@ function startProgressTracking(callId) {
     }, 3000); // Проверяем каждые 3 секунды
 }
 
-// Функция для обновления отображения прогресса
+// Функция для обновления отображения прогресса (для обратной совместимости)
 function updateProgressDisplay(progressData) {
     const loadingMessage = document.getElementById('loadingMessage');
     const loadingDetails = document.getElementById('loadingDetails');
@@ -215,44 +236,133 @@ function updateProgressDisplay(progressData) {
     }
 }
 
-// Функция для загрузки списка звонков
-async function loadCallsList() {
-    try {
-        // Показываем состояние загрузки
+// Функция для применения фильтров и сортировки
+function applyFiltersAndSort() {
+    if (!allCalls || !allCalls.length) return;
+    
+    const languageValue = languageFilter ? languageFilter.value : 'all';
+    const sortValue = sortFilter ? sortFilter.value : 'date-desc';
+    
+    // Сначала фильтруем звонки по языку
+    let filteredCalls = [...allCalls];
+    
+    if (languageValue !== 'all') {
+        filteredCalls = filteredCalls.filter(call => {
+            // Проверяем язык из метаданных
+            const language = call.metadata?.language || call.language || 'ru';
+            return language === languageValue;
+        });
+    }
+    
+    // Затем сортируем
+    switch (sortValue) {
+        case 'date-asc':
+            filteredCalls.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            break;
+        case 'score-desc':
+            filteredCalls.sort((a, b) => b.overall_score - a.overall_score);
+            break;
+        case 'score-asc':
+            filteredCalls.sort((a, b) => a.overall_score - b.overall_score);
+            break;
+        case 'date-desc':
+        default:
+            filteredCalls.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            break;
+    }
+    
+    // Отображаем отфильтрованные звонки
+    renderCallsList(filteredCalls);
+}
+
+// Функция для отображения списка звонков
+function renderCallsList(calls) {
+    if (!callsList) return;
+    
+    callsList.innerHTML = '';
+    
+    if (!calls || calls.length === 0) {
         callsList.innerHTML = `
-            <div class="col-12 text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
+            <div class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="bi bi-mic-mute display-4 text-muted"></i>
+                    <h4 class="mt-3">Нет проанализированных звонков</h4>
+                    <p class="text-muted">Загрузите звонок для анализа, используя форму выше</p>
                 </div>
-                <p class="mt-3">Загрузка списка звонков...</p>
             </div>
         `;
-        
-        const response = await fetch(`${API_BASE_URL}/calls`);
-        if (!response.ok) {
-            throw new Error('Не удалось загрузить список звонков');
-        }
-        
-        const calls = await response.json();
-        
-        // Обновляем список
-        callsList.innerHTML = '';
-        
-        if (calls.length === 0) {
-            callsList.innerHTML = `
-                <div class="col-12 text-center py-5">
-                    <div class="empty-state">
-                        <i class="bi bi-mic-mute display-4 text-muted"></i>
-                        <h4 class="mt-3">Нет проанализированных звонков</h4>
-                        <p class="text-muted">Загрузите звонок для анализа, используя форму выше</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        // Отображаем звонки
-        calls.forEach(call => {
+        return;
+    }
+    
+    // Получаем шаблон карточки звонка
+    const template = document.getElementById('callCardTemplate');
+    
+    // Отображаем звонки
+    calls.forEach(call => {
+        // Клонируем шаблон
+        if (template) {
+            // Используем шаблон
+            const clone = template.content.cloneNode(true);
+            
+            // Заполняем данные в шаблоне
+            const agentName = clone.querySelector('[data-field="agent-name"]');
+            const scoreElement = clone.querySelector('[data-field="score"]');
+            const dateElement = clone.querySelector('[data-field="date"] span');
+            const durationElement = clone.querySelector('[data-field="duration"] span');
+            const filenameElement = clone.querySelector('[data-field="filename"] span');
+            const languageElement = clone.querySelector('[data-field="language"] span');
+            const progressBar = clone.querySelector('.progress-bar');
+            const viewBtn = clone.querySelector('[data-action="view"]');
+            const deleteBtn = clone.querySelector('[data-action="delete"]');
+            
+            // Устанавливаем значения
+            if (agentName) agentName.textContent = call.agent_name || 'Неизвестный продажник';
+            
+            if (scoreElement) {
+                scoreElement.textContent = call.overall_score.toFixed(1);
+                scoreElement.className = `score-badge ${getScoreClass(call.overall_score)}`;
+            }
+            
+            if (dateElement) dateElement.textContent = formatDate(call.created_at);
+            if (durationElement) durationElement.textContent = formatDuration(call.duration || 0);
+            
+            if (filenameElement) {
+                const displayName = call.file_name.length > 25 ? 
+                    call.file_name.substring(0, 22) + '...' : 
+                    call.file_name;
+                filenameElement.textContent = displayName;
+                filenameElement.title = call.file_name;
+            }
+            
+            // Отображаем язык
+            if (languageElement) {
+                const language = call.metadata?.language || call.language || 'ru';
+                const languageLabel = language === 'kk' ? 'Казахский' : 'Русский';
+                languageElement.textContent = languageLabel;
+            }
+            
+            // Настраиваем прогресс-бар
+            if (progressBar) {
+                progressBar.style.width = `${call.overall_score * 10}%`;
+                progressBar.setAttribute('aria-valuenow', call.overall_score);
+                progressBar.className = `progress-bar ${getScoreClass(call.overall_score).replace('score-', 'bg-')}`;
+            }
+            
+            // Добавляем обработчики событий для кнопок
+            if (viewBtn) {
+                viewBtn.setAttribute('data-call-id', call.call_id);
+                viewBtn.addEventListener('click', () => viewCallAnalysis(call.call_id));
+            }
+            
+            if (deleteBtn) {
+                deleteBtn.setAttribute('data-call-id', call.call_id);
+                deleteBtn.addEventListener('click', () => deleteCall(call.call_id));
+            }
+            
+            // Добавляем клон в список звонков
+            callsList.appendChild(clone);
+        } else {
+            // Используем старый способ создания карточки звонка (для совместимости)
             const scoreClass = getScoreClass(call.overall_score);
             const formattedDate = formatDate(call.created_at);
             const card = document.createElement('div');
@@ -277,6 +387,10 @@ async function loadCallsList() {
                                 <i class="bi bi-file-earmark-music"></i>
                                 ${call.file_name.length > 25 ? call.file_name.substring(0, 22) + '...' : call.file_name}
                             </div>
+                            <div class="call-info-item">
+                                <i class="bi bi-translate"></i>
+                                ${call.metadata?.language === 'kk' ? 'Казахский' : 'Русский'}
+                            </div>
                         </div>
                         <div class="score-summary">
                             <div class="progress mb-2">
@@ -300,15 +414,44 @@ async function loadCallsList() {
                     </div>
                 </div>
             `;
+            
             callsList.appendChild(card);
             
-            // Добавляем обработчики событий
+            // Добавляем обработчики событий для кнопок
             const viewBtn = card.querySelector('.view-btn');
             viewBtn.addEventListener('click', () => viewCallAnalysis(call.call_id));
             
             const deleteBtn = card.querySelector('.delete-btn');
             deleteBtn.addEventListener('click', () => deleteCall(call.call_id));
-        });
+        }
+    });
+}
+
+// Функция для загрузки списка звонков
+async function loadCallsList() {
+    try {
+        // Показываем состояние загрузки
+        callsList.innerHTML = `
+            <div class="col-12 text-center py-4">
+                <div class="loading-container">
+                    <div class="loading-spinner mb-3"></div>
+                    <p class="mt-3">Загрузка списка звонков...</p>
+                </div>
+            </div>
+        `;
+        
+        const response = await fetch(`${API_BASE_URL}/calls`);
+        if (!response.ok) {
+            throw new Error('Не удалось загрузить список звонков');
+        }
+        
+        const calls = await response.json();
+        
+        // Сохраняем все звонки в глобальной переменной
+        allCalls = calls;
+        
+        // Применяем фильтры и сортировку
+        applyFiltersAndSort();
         
     } catch (error) {
         console.error('Ошибка при загрузке звонков:', error);
@@ -351,5 +494,40 @@ async function deleteCall(callId) {
         console.error('Ошибка при удалении звонка:', error);
         hideLoading();
         showNotification('error', 'Ошибка удаления', error.message);
+    }
+}
+
+// Функция для отображения анализа звонка
+async function viewCallAnalysis(callId) {
+    try {
+        showLoading('Загрузка анализа', 'Получение данных...');
+        
+        // Функция загрузки анализа должна быть определена в analysis.js
+        if (typeof loadCallAnalysis === 'function') {
+            await loadCallAnalysis(callId);
+        } else {
+            // Для обратной совместимости - прямой вызов API и открытие модального окна
+            const response = await fetch(`${API_BASE_URL}/calls/result/${callId}`);
+            if (!response.ok) {
+                throw new Error('Не удалось загрузить анализ звонка');
+            }
+            
+            const analysis = await response.json();
+            
+            // В старой версии мы бы заполняли модальное окно напрямую тут...
+            // Но теперь это должно быть отдельно в файле analysis.js
+        }
+        
+        hideLoading();
+        
+        // Показываем модальное окно анализа
+        if (analysisModal) {
+            analysisModal.show();
+        }
+        
+    } catch (error) {
+        console.error('Ошибка при загрузке анализа:', error);
+        hideLoading();
+        showNotification('error', 'Ошибка загрузки', `Не удалось загрузить анализ: ${error.message}`);
     }
 }

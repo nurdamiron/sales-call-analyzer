@@ -1,0 +1,614 @@
+/* modern-styles.css - Стили, вдохновленные Chakra UI */
+
+:root {
+    /* Основные цвета */
+    --chakra-primary: #3182ce;
+    --chakra-primary-hover: #2b6cb0;
+    --chakra-secondary: #718096;
+    --chakra-success: #38a169;
+    --chakra-warning: #dd6b20;
+    --chakra-danger: #e53e3e;
+    --chakra-info: #00b5d8;
+    
+    /* Нейтральные цвета */
+    --chakra-gray-50: #f7fafc;
+    --chakra-gray-100: #edf2f7;
+    --chakra-gray-200: #e2e8f0;
+    --chakra-gray-300: #cbd5e0;
+    --chakra-gray-400: #a0aec0;
+    --chakra-gray-500: #718096;
+    --chakra-gray-600: #4a5568;
+    --chakra-gray-700: #2d3748;
+    --chakra-gray-800: #1a202c;
+    --chakra-gray-900: #171923;
+    
+    /* Размеры и тени */
+    --chakra-radius-sm: 0.125rem;
+    --chakra-radius-md: 0.25rem;
+    --chakra-radius-lg: 0.5rem;
+    --chakra-radius-xl: 0.75rem;
+    --chakra-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --chakra-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --chakra-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --chakra-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Переходы */
+    --chakra-transition-fast: 150ms;
+    --chakra-transition-normal: 200ms;
+    --chakra-transition-slow: 300ms;
+  }
+  
+  /* Основные стили */
+  .modern-ui {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    color: var(--chakra-gray-700);
+    background-color: var(--chakra-gray-50);
+  }
+  
+  .modern-ui .main-container {
+    max-width: 1280px;
+    padding: 1.5rem 1rem;
+  }
+  
+  /* Заголовки */
+  .modern-ui h1, .modern-ui h2, .modern-ui h3, 
+  .modern-ui h4, .modern-ui h5, .modern-ui h6 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--chakra-gray-800);
+  }
+  
+  /* Карточки */
+  .modern-ui .card {
+    position: relative;
+    background-color: white;
+    border: none;
+    border-radius: var(--chakra-radius-lg);
+    box-shadow: var(--chakra-shadow-md);
+    overflow: hidden;
+    transition: all var(--chakra-transition-normal) ease;
+  }
+  
+  .modern-ui .card:hover {
+    box-shadow: var(--chakra-shadow-lg);
+    transform: translateY(-2px);
+  }
+  
+  .modern-ui .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--chakra-gray-100);
+    padding: 1.25rem 1.5rem;
+    font-weight: 500;
+  }
+  
+  .modern-ui .card-body {
+    padding: 1.5rem;
+  }
+  
+  .modern-ui .card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--chakra-gray-100);
+    padding: 1rem 1.5rem;
+  }
+  
+  /* Кнопки */
+  .modern-ui .btn {
+    position: relative;
+    font-weight: 500;
+    border-radius: var(--chakra-radius-md);
+    transition: all var(--chakra-transition-fast) ease;
+    padding: 0.5rem 1rem;
+    border: none;
+    outline: none !important;
+  }
+  
+  .modern-ui .btn:active {
+    transform: scale(0.98);
+  }
+  
+  .modern-ui .btn-primary {
+    background-color: var(--chakra-primary);
+    color: white;
+  }
+  
+  .modern-ui .btn-primary:hover, .modern-ui .btn-primary:focus {
+    background-color: var(--chakra-primary-hover);
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+  }
+  
+  .modern-ui .btn-outline-primary {
+    background-color: transparent;
+    color: var(--chakra-primary);
+    border: 1px solid var(--chakra-primary);
+  }
+  
+  .modern-ui .btn-outline-primary:hover, .modern-ui .btn-outline-primary:focus {
+    background-color: rgba(49, 130, 206, 0.05);
+  }
+  
+  .modern-ui .btn-success {
+    background-color: var(--chakra-success);
+    color: white;
+  }
+  
+  .modern-ui .btn-outline-success {
+    background-color: transparent;
+    color: var(--chakra-success);
+    border: 1px solid var(--chakra-success);
+  }
+  
+  .modern-ui .btn-danger {
+    background-color: var(--chakra-danger);
+    color: white;
+  }
+  
+  .modern-ui .btn-outline-danger {
+    background-color: transparent;
+    color: var(--chakra-danger);
+    border: 1px solid var(--chakra-danger);
+  }
+  
+  /* Значки и бейджи */
+  .modern-ui .badge {
+    font-weight: 600;
+    padding: 0.3em 0.6em;
+    border-radius: var(--chakra-radius-sm);
+  }
+  
+  /* Формы */
+  .modern-ui .form-control, .modern-ui .form-select {
+    border-radius: var(--chakra-radius-md);
+    font-size: 0.95rem;
+    border: 1px solid var(--chakra-gray-200);
+    padding: 0.6rem 0.8rem;
+    background-color: white;
+    transition: all var(--chakra-transition-fast) ease;
+  }
+  
+  .modern-ui .form-control:focus, .modern-ui .form-select:focus {
+    border-color: var(--chakra-primary);
+    box-shadow: 0 0 0 1px var(--chakra-primary);
+  }
+  
+  .modern-ui .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--chakra-gray-700);
+  }
+  
+  /* Заголовок приложения */
+  .modern-ui .app-header {
+    background-color: white;
+    border-bottom: 1px solid var(--chakra-gray-100);
+    box-shadow: var(--chakra-shadow-sm);
+    padding: 1.25rem 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-ui .app-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--chakra-gray-800);
+    margin-bottom: 0;
+  }
+  
+  .modern-ui .app-subtitle {
+    color: var(--chakra-gray-500);
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Индикаторы и прогресс-бары */
+  .modern-ui .progress {
+    height: 0.5rem;
+    background-color: var(--chakra-gray-100);
+    border-radius: var(--chakra-radius-sm);
+    overflow: hidden;
+  }
+  
+  .modern-ui .progress-bar {
+    background-color: var(--chakra-primary);
+    border-radius: var(--chakra-radius-sm);
+  }
+  
+  /* Оценки */
+  .modern-ui .score-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: white;
+    box-shadow: var(--chakra-shadow-md);
+  }
+  
+  .modern-ui .score-excellent {
+    background-color: #319795; /* teal.500 */
+  }
+  
+  .modern-ui .score-good {
+    background-color: #38a169; /* green.500 */
+  }
+  
+  .modern-ui .score-average {
+    background-color: #d69e2e; /* yellow.500 */
+  }
+  
+  .modern-ui .score-below-average {
+    background-color: #dd6b20; /* orange.500 */
+  }
+  
+  .modern-ui .score-poor {
+    background-color: #e53e3e; /* red.500 */
+  }
+  
+  .modern-ui .score-not-applicable {
+    background-color: var(--chakra-gray-400);
+  }
+  
+  /* Выделения в транскрипции */
+  .modern-ui .highlight-good {
+    background-color: rgba(56, 161, 105, 0.2);
+    border-radius: var(--chakra-radius-sm);
+    padding: 0.125rem 0.25rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .modern-ui .highlight-good:hover {
+    background-color: rgba(56, 161, 105, 0.3);
+  }
+  
+  .modern-ui .highlight-bad {
+    background-color: rgba(229, 62, 62, 0.2);
+    border-radius: var(--chakra-radius-sm);
+    padding: 0.125rem 0.25rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .modern-ui .highlight-bad:hover {
+    background-color: rgba(229, 62, 62, 0.3);
+  }
+  
+  .modern-ui .highlight-note {
+    background-color: rgba(49, 130, 206, 0.2);
+    border-radius: var(--chakra-radius-sm);
+    padding: 0.125rem 0.25rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .modern-ui .highlight-note:hover {
+    background-color: rgba(49, 130, 206, 0.3);
+  }
+  
+  /* Секция загрузки */
+  .modern-ui .upload-section {
+    background-color: white;
+    border-radius: var(--chakra-radius-lg);
+    box-shadow: var(--chakra-shadow-md);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .modern-ui .upload-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--chakra-gray-100);
+  }
+  
+  .modern-ui .upload-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--chakra-gray-800);
+    margin-bottom: 0.5rem;
+  }
+  
+  .modern-ui .upload-description {
+    color: var(--chakra-gray-500);
+    margin-bottom: 0;
+  }
+  
+  /* Карточки звонков */
+  .modern-ui .call-card {
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .modern-ui .call-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modern-ui .call-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .modern-ui .call-info-item {
+    display: flex;
+    align-items: center;
+    color: var(--chakra-gray-600);
+    font-size: 0.875rem;
+  }
+  
+  .modern-ui .call-info-item i {
+    margin-right: 0.5rem;
+    width: 1rem;
+  }
+  
+  /* Комментарии */
+  .modern-ui .comment-card {
+    border-radius: var(--chakra-radius-md);
+    box-shadow: var(--chakra-shadow-sm);
+    margin-bottom: 1rem;
+    border: none;
+    overflow: hidden;
+  }
+  
+  .modern-ui .comment-good {
+    border-left: 4px solid var(--chakra-success);
+  }
+  
+  .modern-ui .comment-bad {
+    border-left: 4px solid var(--chakra-danger);
+  }
+  
+  .modern-ui .comment-note {
+    border-left: 4px solid var(--chakra-primary);
+  }
+  
+  .modern-ui .comment-card blockquote {
+    background-color: var(--chakra-gray-50);
+    padding: 0.75rem 1rem;
+    border-radius: var(--chakra-radius-md);
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Вкладки */
+  .modern-ui .nav-tabs {
+    border-bottom: 1px solid var(--chakra-gray-200);
+    margin-bottom: 1.25rem;
+  }
+  
+  .modern-ui .nav-tabs .nav-link {
+    color: var(--chakra-gray-600);
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    margin-bottom: -1px;
+    position: relative;
+    transition: color var(--chakra-transition-fast) ease;
+  }
+  
+  .modern-ui .nav-tabs .nav-link:hover {
+    color: var(--chakra-primary);
+    border-bottom: 2px solid var(--chakra-gray-200);
+  }
+  
+  .modern-ui .nav-tabs .nav-link.active {
+    color: var(--chakra-primary);
+    border-bottom: 2px solid var(--chakra-primary);
+    background-color: transparent;
+  }
+  
+  /* Анимации */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modern-ui .fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(49, 130, 206, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(49, 130, 206, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(49, 130, 206, 0); }
+  }
+  
+  .modern-ui .pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  /* Медиа-запросы для адаптивности */
+  @media (max-width: 768px) {
+    .modern-ui .main-container {
+      padding: 1rem 0.5rem;
+    }
+    
+    .modern-ui .card-header {
+      padding: 1rem;
+    }
+    
+    .modern-ui .card-body {
+      padding: 1rem;
+    }
+    
+    .modern-ui .app-title {
+      font-size: 1.25rem;
+    }
+    
+    .modern-ui .upload-section {
+      padding: 1rem;
+    }
+    
+    .modern-ui .score-badge {
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 1rem;
+    }
+  }
+  
+  /* Улучшенные компоненты диалога */
+  .modern-ui .dialogue-container {
+    max-width: 100%;
+    margin-top: 1.25rem;
+  }
+  
+  .modern-ui .utterance {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--chakra-radius-lg);
+    max-width: 85%;
+    box-shadow: var(--chakra-shadow-sm);
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .modern-ui .utterance:hover {
+    box-shadow: var(--chakra-shadow-md);
+  }
+  
+  .modern-ui .seller-utterance {
+    background-color: #ebf8ff; /* blue.50 */
+    border-left: 4px solid #3182ce; /* blue.500 */
+    margin-right: auto;
+  }
+  
+  .modern-ui .client-utterance {
+    background-color: #f0fff4; /* green.50 */
+    border-left: 4px solid #38a169; /* green.500 */
+    margin-left: auto;
+  }
+  
+  .modern-ui .speaker-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+  
+  .modern-ui .seller-badge {
+    background-color: #3182ce; /* blue.500 */
+  }
+  
+  .modern-ui .client-badge {
+    background-color: #38a169; /* green.500 */
+  }
+  
+  .modern-ui .utterance-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .modern-ui .utterance-text {
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  
+  /* Импровизированный индикатор загрузки */
+  .modern-ui .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .modern-ui .loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 4px solid var(--chakra-gray-100);
+    border-radius: 50%;
+    border-top: 4px solid var(--chakra-primary);
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Рекомендации */
+  .modern-ui .recommendation-item {
+    position: relative;
+    border-radius: var(--chakra-radius-md);
+    margin-bottom: 1.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  .modern-ui .recommendation-problem {
+    border-left: 4px solid var(--chakra-danger);
+    background-color: #fff5f5; /* red.50 */
+    padding: 1rem;
+    border-radius: var(--chakra-radius-md);
+    margin-bottom: 0.75rem;
+  }
+  
+  .modern-ui .recommendation-solution {
+    margin-left: 1.25rem;
+    position: relative;
+    border-left: 4px solid var(--chakra-success);
+    background-color: #f0fff4; /* green.50 */
+    padding: 1rem;
+    border-radius: var(--chakra-radius-md);
+  }
+  
+  .modern-ui .recommendation-solution:before {
+    content: "";
+    position: absolute;
+    left: -1.25rem;
+    top: 50%;
+    width: 1.25rem;
+    height: 2px;
+    background-color: var(--chakra-success);
+  }
+  
+  /* Анимация для подсветки рекомендаций */
+  @keyframes highlight-recommendation {
+    0% { background-color: rgba(56, 161, 105, 0.1); }
+    50% { background-color: rgba(56, 161, 105, 0.3); }
+    100% { background-color: rgba(56, 161, 105, 0.1); }
+  }
+  
+  .modern-ui .highlight-recommendation {
+    animation: highlight-recommendation 1s;
+  }
+  
+  /* Аккордеон */
+  .modern-ui .accordion-item {
+    border: none;
+    margin-bottom: 0.5rem;
+    border-radius: var(--chakra-radius-md);
+    overflow: hidden;
+    box-shadow: var(--chakra-shadow-sm);
+  }
+  
+  .modern-ui .accordion-button {
+    padding: 1rem 1.25rem;
+    background-color: white;
+    font-weight: 500;
+    color: var(--chakra-gray-700);
+  }
+  
+  .modern-ui .accordion-button:focus {
+    box-shadow: none;
+    border-color: var(--chakra-gray-200);
+  }
+  
+  .modern-ui .accordion-button:not(.collapsed) {
+    color: var(--chakra-primary);
+    background-color: white;
+    box-shadow: none;
+  }
+  
+  .modern-ui .accordion-body {
+    padding: 1rem 1.25rem;
+    background-color: var(--chakra-gray-50);
+  }

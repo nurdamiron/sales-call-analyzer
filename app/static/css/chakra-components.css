@@ -1,0 +1,611 @@
+/* Переменные для Chakra-подобных стилей */
+:root {
+    --chakra-colors-blue-50: #ebf8ff;
+    --chakra-colors-blue-100: #bee3f8;
+    --chakra-colors-blue-200: #90cdf4;
+    --chakra-colors-blue-300: #63b3ed;
+    --chakra-colors-blue-400: #4299e1;
+    --chakra-colors-blue-500: #3182ce;
+    --chakra-colors-blue-600: #2b6cb0;
+    --chakra-colors-blue-700: #2c5282;
+    
+    --chakra-colors-green-50: #f0fff4;
+    --chakra-colors-green-100: #c6f6d5;
+    --chakra-colors-green-500: #38a169;
+    
+    --chakra-colors-red-50: #fff5f5;
+    --chakra-colors-red-100: #fed7d7;
+    --chakra-colors-red-500: #e53e3e;
+    
+    --chakra-colors-yellow-50: #fffbeb;
+    --chakra-colors-yellow-100: #fef3c7;
+    --chakra-colors-yellow-500: #d69e2e;
+    
+    --chakra-colors-gray-50: #f7fafc;
+    --chakra-colors-gray-100: #edf2f7;
+    --chakra-colors-gray-200: #e2e8f0;
+    --chakra-colors-gray-300: #cbd5e0;
+    --chakra-colors-gray-400: #a0aec0;
+    --chakra-colors-gray-500: #718096;
+    --chakra-colors-gray-600: #4a5568;
+    --chakra-colors-gray-700: #2d3748;
+    --chakra-colors-gray-800: #1a202c;
+    
+    --chakra-radii-sm: 0.125rem;
+    --chakra-radii-md: 0.375rem;
+    --chakra-radii-lg: 0.5rem;
+    --chakra-radii-xl: 0.75rem;
+    
+    --chakra-shadows-xs: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    --chakra-shadows-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --chakra-shadows-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --chakra-shadows-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --chakra-shadows-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    --chakra-transition-normal: 0.2s;
+  }
+  
+  /* Улучшенные стили для вкладок */
+  .nav-tabs {
+    border-bottom: 1px solid var(--chakra-colors-gray-200);
+    gap: 0.5rem;
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .nav-tabs .nav-item {
+    margin-bottom: -1px;
+  }
+  
+  .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    color: var(--chakra-colors-gray-600);
+    transition: all var(--chakra-transition-normal) ease;
+    background-color: transparent;
+  }
+  
+  .nav-tabs .nav-link:hover {
+    color: var(--chakra-colors-blue-500);
+    background-color: var(--chakra-colors-blue-50);
+    border-color: var(--chakra-colors-blue-100);
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: var(--chakra-colors-blue-600);
+    border-bottom-color: var(--chakra-colors-blue-500);
+    font-weight: 600;
+    background-color: transparent;
+  }
+  
+  .nav-tabs .nav-link.active i {
+    color: var(--chakra-colors-blue-500);
+  }
+  
+  .nav-tabs .nav-link i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  /* Улучшенные стили для содержимого вкладок */
+  .tab-content {
+    padding-top: 1.5rem;
+  }
+  
+  .tab-pane {
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Стили для карточек в интерфейсе */
+  .card {
+    border: none;
+    border-radius: var(--chakra-radii-lg);
+    box-shadow: var(--chakra-shadows-base);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
+    background-color: white;
+  }
+  
+  .card:hover {
+    box-shadow: var(--chakra-shadows-md);
+  }
+  
+  .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--chakra-colors-gray-100);
+    padding: 1rem 1.25rem;
+    font-weight: 500;
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+  
+  .card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--chakra-colors-gray-100);
+    padding: 0.75rem 1.25rem;
+  }
+  
+  /* Улучшенные стили для комментариев */
+  #commentsContainer .alert-info {
+    background-color: var(--chakra-colors-blue-50);
+    border-color: var(--chakra-colors-blue-100);
+    color: var(--chakra-colors-blue-700);
+    border-radius: var(--chakra-radii-md);
+    padding: 1rem;
+  }
+  
+  .btn-group .btn {
+    border-radius: var(--chakra-radii-md);
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-group .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-group .btn.active {
+    box-shadow: none;
+  }
+  
+  .btn-group .btn-outline-success {
+    color: var(--chakra-colors-green-500);
+    border-color: var(--chakra-colors-green-500);
+  }
+  
+  .btn-group .btn-outline-success:hover,
+  .btn-group .btn-outline-success.active {
+    background-color: var(--chakra-colors-green-500);
+    border-color: var(--chakra-colors-green-500);
+    color: white;
+  }
+  
+  .btn-group .btn-outline-danger {
+    color: var(--chakra-colors-red-500);
+    border-color: var(--chakra-colors-red-500);
+  }
+  
+  .btn-group .btn-outline-danger:hover,
+  .btn-group .btn-outline-danger.active {
+    background-color: var(--chakra-colors-red-500);
+    border-color: var(--chakra-colors-red-500);
+    color: white;
+  }
+  
+  .btn-group .btn-outline-primary {
+    color: var(--chakra-colors-blue-500);
+    border-color: var(--chakra-colors-blue-500);
+  }
+  
+  .btn-group .btn-outline-primary:hover,
+  .btn-group .btn-outline-primary.active {
+    background-color: var(--chakra-colors-blue-500);
+    border-color: var(--chakra-colors-blue-500);
+    color: white;
+  }
+  
+  .btn-group .btn-outline-secondary {
+    color: var(--chakra-colors-gray-600);
+    border-color: var(--chakra-colors-gray-300);
+  }
+  
+  .btn-group .btn-outline-secondary:hover,
+  .btn-group .btn-outline-secondary.active {
+    background-color: var(--chakra-colors-gray-500);
+    border-color: var(--chakra-colors-gray-500);
+    color: white;
+  }
+  
+  /* Кнопка экспорта */
+  #exportCommentsBtn {
+    border-radius: var(--chakra-radii-md);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: var(--chakra-colors-blue-500);
+    border-color: var(--chakra-colors-blue-500);
+  }
+  
+  #exportCommentsBtn:hover {
+    background-color: var(--chakra-colors-blue-50);
+    border-color: var(--chakra-colors-blue-500);
+    color: var(--chakra-colors-blue-700);
+  }
+  
+  /* Поле поиска */
+  .input-group .form-control {
+    border-radius: var(--chakra-radii-md) 0 0 var(--chakra-radii-md);
+    border-color: var(--chakra-colors-gray-200);
+    padding: 0.4rem 0.75rem;
+  }
+  
+  .input-group .form-control:focus {
+    border-color: var(--chakra-colors-blue-300);
+    box-shadow: 0 0 0 1px var(--chakra-colors-blue-300);
+  }
+  
+  .input-group .btn {
+    border-radius: 0 var(--chakra-radii-md) var(--chakra-radii-md) 0;
+    border-color: var(--chakra-colors-gray-200);
+  }
+  
+  /* Улучшенный спиннер загрузки */
+  #loadingSpinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  #loadingSpinner.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .loading-content {
+    background-color: white;
+    border-radius: var(--chakra-radii-lg);
+    padding: 2rem;
+    box-shadow: var(--chakra-shadows-lg);
+    text-align: center;
+    max-width: 90%;
+    width: 400px;
+  }
+  
+  .spinner-grow {
+    color: var(--chakra-colors-blue-500);
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Модальные окна */
+  .modal-content {
+    border: none;
+    border-radius: var(--chakra-radii-lg);
+    box-shadow: var(--chakra-shadows-lg);
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    border-bottom: 1px solid var(--chakra-colors-gray-100);
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .modal-footer {
+    border-top: 1px solid var(--chakra-colors-gray-100);
+    padding: 1rem 1.5rem;
+  }
+  
+  .btn-close {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  
+  .btn-close:hover {
+    opacity: 0.75;
+  }
+  
+  /* Кнопки модальных окон */
+  .modal-footer .btn {
+    border-radius: var(--chakra-radii-md);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+  }
+  
+  .modal-footer .btn-secondary {
+    background-color: var(--chakra-colors-gray-100);
+    border: none;
+    color: var(--chakra-colors-gray-800);
+  }
+  
+  .modal-footer .btn-secondary:hover {
+    background-color: var(--chakra-colors-gray-200);
+  }
+  
+  .modal-footer .btn-primary {
+    background-color: var(--chakra-colors-blue-500);
+    border: none;
+  }
+  
+  .modal-footer .btn-primary:hover {
+    background-color: var(--chakra-colors-blue-600);
+  }
+  
+  .modal-footer .btn-danger {
+    background-color: var(--chakra-colors-red-500);
+    border: none;
+  }
+  
+  .modal-footer .btn-danger:hover {
+    background-color: var(--chakra-colors-red-600);
+  }
+  
+  /* Стили для прогресс-трекера */
+  #analysisProgressContainer {
+    border-radius: var(--chakra-radii-lg);
+    overflow: hidden;
+    box-shadow: var(--chakra-shadows-base);
+    transition: box-shadow 0.3s ease;
+    border: none;
+  }
+  
+  #analysisProgressContainer:hover {
+    box-shadow: var(--chakra-shadows-md);
+  }
+  
+  .progress {
+    height: 8px;
+    border-radius: var(--chakra-radii-sm);
+    overflow: hidden;
+    background-color: var(--chakra-colors-gray-100);
+  }
+  
+  .progress-bar {
+    background-color: var(--chakra-colors-blue-500);
+  }
+  
+  .analysis-steps {
+    margin: 2rem 0;
+  }
+  
+  .step-line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: var(--chakra-colors-gray-200);
+    margin-top: 12px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .step-line.active {
+    background-color: var(--chakra-colors-blue-500);
+  }
+  
+  .analysis-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+  }
+  
+  .step-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--chakra-colors-gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    border: 2px solid var(--chakra-colors-gray-200);
+  }
+  
+  .step-icon i {
+    color: var(--chakra-colors-gray-600);
+    font-size: 1.2rem;
+  }
+  
+  .analysis-step.active .step-icon {
+    background-color: var(--chakra-colors-blue-50);
+    border-color: var(--chakra-colors-blue-500);
+  }
+  
+  .analysis-step.active .step-icon i {
+    color: var(--chakra-colors-blue-500);
+  }
+  
+  .analysis-step.completed .step-icon {
+    background-color: var(--chakra-colors-blue-500);
+    border-color: var(--chakra-colors-blue-500);
+  }
+  
+  .analysis-step.completed .step-icon i {
+    color: white;
+  }
+  
+  .step-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--chakra-colors-gray-600);
+    text-align: center;
+    margin-top: 0.25rem;
+  }
+  
+  .analysis-step.active .step-label {
+    color: var(--chakra-colors-blue-600);
+    font-weight: 600;
+  }
+  
+  .logs-container {
+    margin-top: 2rem;
+  }
+  
+  .logs-container .card {
+    border: 1px solid var(--chakra-colors-gray-100);
+    box-shadow: none;
+  }
+  
+  .logs-container .card-header {
+    background-color: var(--chakra-colors-gray-50);
+    padding: 0.75rem 1rem;
+  }
+  
+  .log-entry {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--chakra-colors-gray-100);
+    font-size: 0.875rem;
+  }
+  
+  .log-highlight {
+    animation: highlight 1s ease;
+  }
+  
+  @keyframes highlight {
+    0% { background-color: var(--chakra-colors-blue-50); }
+    100% { background-color: transparent; }
+  }
+  
+  .log-timestamp {
+    color: var(--chakra-colors-gray-500);
+    margin-right: 0.5rem;
+  }
+  
+  /* Стили для Chakra-подобных диалоговых окон */
+  .dialogue-container {
+    margin-top: 1.5rem;
+  }
+  
+  .utterance {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--chakra-radii-lg);
+    max-width: 85%;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .utterance:hover {
+    box-shadow: var(--chakra-shadows-md);
+  }
+  
+  .seller-utterance {
+    background-color: var(--chakra-colors-blue-50);
+    border-left: 4px solid var(--chakra-colors-blue-500);
+    margin-right: auto;
+  }
+  
+  .client-utterance {
+    background-color: var(--chakra-colors-green-50);
+    border-left: 4px solid var(--chakra-colors-green-500);
+    margin-left: auto;
+  }
+  
+  .speaker-badge {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .seller-badge {
+    background-color: var(--chakra-colors-blue-500);
+  }
+  
+  .client-badge {
+    background-color: var(--chakra-colors-green-500);
+  }
+  
+  .utterance-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .utterance-text {
+    line-height: 1.6;
+  }
+  
+  #dialogueLegend {
+    background-color: var(--chakra-colors-gray-50);
+    padding: 0.75rem;
+    border-radius: var(--chakra-radii-md);
+  }
+  
+  /* Улучшенные стили для общего дизайна */
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.5;
+    color: var(--chakra-colors-gray-800);
+    background-color: var(--chakra-colors-gray-50);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  .form-control, .form-select {
+    border-radius: var(--chakra-radii-md);
+    border-color: var(--chakra-colors-gray-200);
+    transition: all 0.2s ease;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: var(--chakra-colors-blue-500);
+    box-shadow: 0 0 0 1px var(--chakra-colors-blue-300);
+  }
+  
+  .input-group-text {
+    background-color: var(--chakra-colors-gray-50);
+    border-color: var(--chakra-colors-gray-200);
+  }
+  
+  /* Значки оценок (score-badge) */
+  .score-badge {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 auto;
+    box-shadow: var(--chakra-shadows-md);
+  }
+  
+  .score-excellent {
+    background-color: #2ecc71;
+  }
+  
+  .score-good {
+    background-color: #3498db;
+  }
+  
+  .score-average {
+    background-color: #f39c12;
+  }
+  
+  .score-below-average {
+    background-color: #e67e22;
+  }
+  
+  .score-poor {
+    background-color: #e74c3c;
+  }
+  
+  .score-not-applicable {
+    background-color: var(--chakra-colors-gray-400);
+  }

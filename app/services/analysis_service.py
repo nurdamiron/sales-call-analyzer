@@ -142,8 +142,8 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None, lan
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "temperature": 0.7,
-            "max_tokens": 2000
+            "temperature": 1.0,
+            "max_tokens": 5000
         }
         
         if call_id:

@@ -1,20 +1,113 @@
 <!-- Секция проанализированных звонков -->
-<div class="card">
+<div class="card mb-4">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h2 class="fs-5 mb-0">Проанализированные звонки</h2>
-        <button id="refreshBtn" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-arrow-clockwise me-1"></i> Обновить
-        </button>
+        <h2 class="fs-5 mb-0 d-flex align-items-center">
+            <i class="bi bi-list-ul me-2 text-primary"></i>
+            Проанализированные звонки
+        </h2>
+        <div class="d-flex align-items-center">
+            <!-- Добавляем фильтр по языку -->
+            <div class="me-3">
+                <select id="languageFilter" class="form-select form-select-sm">
+                    <option value="all">Все языки</option>
+                    <option value="ru">Русский</option>
+                    <option value="kk">Казахский</option>
+                </select>
+            </div>
+            
+            <!-- Добавляем сортировку -->
+            <div class="me-3">
+                <select id="sortFilter" class="form-select form-select-sm">
+                    <option value="date-desc">Сначала новые</option>
+                    <option value="date-asc">Сначала старые</option>
+                    <option value="score-desc">По оценке (высшая)</option>
+                    <option value="score-asc">По оценке (низшая)</option>
+                </select>
+            </div>
+            
+            <button id="refreshBtn" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-arrow-clockwise me-1"></i> Обновить
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <div id="callsList" class="row g-4">
             <!-- Здесь будут звонки -->
             <div class="col-12 text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
+                <div class="loading-container">
+                    <div class="loading-spinner mb-3"></div>
+                    <p class="mt-3">Загрузка списка звонков...</p>
                 </div>
-                <p class="mt-3">Загрузка списка звонков...</p>
             </div>
+        </div>
+        
+        <!-- Пагинация (появляется когда есть много звонков) -->
+        <div id="callsPagination" class="d-flex justify-content-center mt-4" style="display: none !important;">
+            <nav aria-label="Навигация по страницам">
+                <ul class="pagination">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Предыдущая</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Следующая</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+
+<!-- Шаблон для карточки звонка (будет использоваться JavaScript) -->
+<template id="callCardTemplate">
+    <div class="col-md-4 col-sm-6">
+        <div class="card call-card h-100">
+            <div class="card-header">
+                <div class="fw-500" data-field="agent-name">Имя продажника</div>
+                <div class="score-badge score-excellent" data-field="score">9.5</div>
+            </div>
+            <div class="card-body">
+                <div class="call-info mb-3">
+                    <div class="call-info-item" data-field="date">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>01.01.2023 12:00</span>
+                    </div>
+                    <div class="call-info-item" data-field="duration">
+                        <i class="bi bi-clock"></i>
+                        <span>05:30</span>
+                    </div>
+                    <div class="call-info-item" data-field="filename">
+                        <i class="bi bi-file-earmark-music"></i>
+                        <span>filename.mp3</span>
+                    </div>
+                    <!-- Добавляем отображение языка -->
+                    <div class="call-info-item" data-field="language">
+                        <i class="bi bi-translate"></i>
+                        <span>Русский</span>
+                    </div>
+                </div>
+                <div class="score-summary">
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" 
+                            role="progressbar" 
+                            style="width: 85%" 
+                            aria-valuenow="8.5" 
+                            aria-valuemin="0" 
+                            aria-valuemax="10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-sm btn-primary view-btn" data-action="view">
+                    <i class="bi bi-eye me-1"></i> Просмотр
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-btn" data-action="delete">
+                    <i class="bi bi-trash me-1"></i> Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

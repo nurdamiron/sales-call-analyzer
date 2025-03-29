@@ -1,0 +1,226 @@
+/* app/static/css/dark-theme.css */
+/* Стили для темной темы */
+
+.dark-theme {
+    --chakra-primary: #63b3ed;
+    --chakra-primary-hover: #4299e1;
+    --chakra-secondary: #a0aec0;
+    --chakra-success: #68d391;
+    --chakra-warning: #f6ad55;
+    --chakra-danger: #fc8181;
+    --chakra-info: #76e4f7;
+    
+    /* Темные цвета фона */
+    --chakra-gray-50: #1a202c;
+    --chakra-gray-100: #2d3748;
+    --chakra-gray-200: #4a5568;
+    --chakra-gray-300: #718096;
+    --chakra-gray-400: #a0aec0;
+    --chakra-gray-500: #cbd5e0;
+    --chakra-gray-600: #e2e8f0;
+    --chakra-gray-700: #edf2f7;
+    --chakra-gray-800: #f7fafc;
+    --chakra-gray-900: #ffffff;
+    
+    /* Цвета текста */
+    color: var(--chakra-gray-400);
+    background-color: var(--chakra-gray-50);
+}
+
+/* Карточки и контейнеры */
+.dark-theme .card,
+.dark-theme .upload-section,
+.dark-theme .app-header {
+    background-color: var(--chakra-gray-100);
+    border-color: var(--chakra-gray-200);
+}
+
+.dark-theme .card-header,
+.dark-theme .card-footer,
+.dark-theme .upload-header,
+.dark-theme .modal-header,
+.dark-theme .modal-footer {
+    border-color: var(--chakra-gray-200);
+}
+
+/* Заголовки */
+.dark-theme h1, .dark-theme h2, .dark-theme h3, 
+.dark-theme h4, .dark-theme h5, .dark-theme h6,
+.dark-theme .app-title {
+    color: var(--chakra-gray-600);
+}
+
+.dark-theme .app-subtitle,
+.dark-theme .upload-description,
+.dark-theme .text-muted {
+    color: var(--chakra-gray-400) !important;
+}
+
+/* Формы */
+.dark-theme .form-control,
+.dark-theme .form-select,
+.dark-theme .input-group-text {
+    background-color: var(--chakra-gray-50);
+    border-color: var(--chakra-gray-200);
+    color: var(--chakra-gray-500);
+}
+
+.dark-theme .form-control:focus,
+.dark-theme .form-select:focus {
+    background-color: var(--chakra-gray-50);
+    color: var(--chakra-gray-600);
+    border-color: var(--chakra-primary);
+}
+
+.dark-theme .form-label {
+    color: var(--chakra-gray-500);
+}
+
+/* Кнопки */
+.dark-theme .btn-outline-primary {
+    color: var(--chakra-primary);
+    border-color: var(--chakra-primary);
+}
+
+.dark-theme .btn-outline-primary:hover {
+    background-color: rgba(99, 179, 237, 0.2);
+    color: var(--chakra-primary);
+}
+
+.dark-theme .btn-outline-danger {
+    color: var(--chakra-danger);
+    border-color: var(--chakra-danger);
+}
+
+.dark-theme .btn-outline-danger:hover {
+    background-color: rgba(252, 129, 129, 0.2);
+    color: var(--chakra-danger);
+}
+
+/* Вкладки */
+.dark-theme .nav-tabs {
+    border-color: var(--chakra-gray-200);
+}
+
+.dark-theme .nav-tabs .nav-link {
+    color: var(--chakra-gray-400);
+}
+
+.dark-theme .nav-tabs .nav-link:hover {
+    color: var(--chakra-primary);
+    border-color: var(--chakra-gray-300);
+}
+
+.dark-theme .nav-tabs .nav-link.active {
+    color: var(--chakra-primary);
+    background-color: transparent;
+    border-color: transparent transparent var(--chakra-primary) transparent;
+}
+
+/* Модальные окна */
+.dark-theme .modal-content {
+    background-color: var(--chakra-gray-100);
+    border-color: var(--chakra-gray-200);
+}
+
+.dark-theme .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Выделения в транскрипции */
+.dark-theme .highlight-good {
+    background-color: rgba(104, 211, 145, 0.2);
+}
+
+.dark-theme .highlight-bad {
+    background-color: rgba(252, 129, 129, 0.2);
+}
+
+.dark-theme .highlight-note {
+    background-color: rgba(99, 179, 237, 0.2);
+}
+
+/* Диалог */
+.dark-theme .seller-utterance {
+    background-color: rgba(99, 179, 237, 0.1);
+    border-left-color: var(--chakra-primary);
+}
+
+.dark-theme .client-utterance {
+    background-color: rgba(104, 211, 145, 0.1);
+    border-left-color: var(--chakra-success);
+}
+
+.dark-theme .seller-badge {
+    background-color: var(--chakra-primary);
+}
+
+.dark-theme .client-badge {
+    background-color: var(--chakra-success);
+}
+
+/* Рекомендации */
+.dark-theme .recommendation-problem {
+    background-color: rgba(252, 129, 129, 0.1);
+    border-left-color: var(--chakra-danger);
+}
+
+.dark-theme .recommendation-solution {
+    background-color: rgba(104, 211, 145, 0.1);
+    border-left-color: var(--chakra-success);
+}
+
+/* Комментарии */
+.dark-theme .comment-card blockquote {
+    background-color: var(--chakra-gray-50);
+}
+
+/* Загрузка */
+.dark-theme .loading-spinner {
+    border-color: var(--chakra-gray-200);
+    border-top-color: var(--chakra-primary);
+}
+
+/* Иконки */
+.dark-theme .bi {
+    opacity: 0.9;
+}
+
+/* Аккордеон */
+.dark-theme .accordion-item {
+    background-color: var(--chakra-gray-100);
+    border-color: var(--chakra-gray-200);
+}
+
+.dark-theme .accordion-button {
+    background-color: var(--chakra-gray-100);
+    color: var(--chakra-gray-500);
+}
+
+.dark-theme .accordion-button:not(.collapsed) {
+    color: var(--chakra-primary);
+    background-color: var(--chakra-gray-100);
+}
+
+.dark-theme .accordion-button::after {
+    filter: invert(0.8);
+}
+
+.dark-theme .accordion-body {
+    background-color: var(--chakra-gray-50);
+}
+
+/* Прогресс-бар */
+.dark-theme .progress {
+    background-color: var(--chakra-gray-200);
+}
+
+/* Уведомления */
+.dark-theme .notification {
+    background-color: var(--chakra-gray-100);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .notification-message {
+    color: var(--chakra-gray-400);
+}

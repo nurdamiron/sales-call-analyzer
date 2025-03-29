@@ -1,0 +1,265 @@
+/* Улучшение базовых стилей и шрифтов в стиле Chakra UI */
+
+/* Импорт шрифта Inter для современного UI */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1a202c;
+  background-color: #f7fafc;
+  line-height: 1.5;
+}
+
+/* Улучшенные заголовки */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: #2d3748;
+  letter-spacing: -0.025em;
+}
+
+/* Улучшенный заголовок приложения */
+.app-header {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+}
+
+.app-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0;
+  color: #2d3748;
+}
+
+.app-subtitle {
+  color: #718096;
+  margin-top: 0.25rem;
+  font-weight: 400;
+}
+
+/* Секция загрузки */
+.upload-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: none;
+}
+
+.upload-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.upload-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.upload-description {
+  color: #718096;
+  margin-bottom: 0;
+}
+
+/* Стилизация форм */
+.form-label {
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.625rem 1rem;
+  transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 1px #3182ce;
+}
+
+.form-text {
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.input-group-text {
+  background-color: #f7fafc;
+  border-color: #e2e8f0;
+  color: #4a5568;
+}
+
+textarea.form-control {
+  line-height: 1.5;
+}
+
+/* Улучшенные кнопки */
+.btn {
+  font-weight: 500;
+  border-radius: 0.375rem;
+  padding: 0.625rem 1rem;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #3182ce;
+  border-color: #3182ce;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #2b6cb0;
+  border-color: #2b6cb0;
+}
+
+.btn-outline-primary {
+  color: #3182ce;
+  border-color: #3182ce;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+  background-color: #3182ce;
+  border-color: #3182ce;
+  color: white;
+}
+
+.btn:focus {
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.4);
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Глобальные эффекты анимации */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Эффект нажатия на кнопки */
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Стили для нотификаций */
+#notificationContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1060;
+  width: 360px;
+  max-width: 100%;
+}
+
+.notification {
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  position: relative;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.notification-success {
+  border-left: 4px solid #38a169;
+}
+
+.notification-error {
+  border-left: 4px solid #e53e3e;
+}
+
+.notification-warning {
+  border-left: 4px solid #d69e2e;
+}
+
+.notification-info {
+  border-left: 4px solid #3182ce;
+}
+
+.notification-icon {
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  font-size: 1.25rem;
+}
+
+.notification-success .notification-icon {
+  color: #38a169;
+}
+
+.notification-error .notification-icon {
+  color: #e53e3e;
+}
+
+.notification-warning .notification-icon {
+  color: #d69e2e;
+}
+
+.notification-info .notification-icon {
+  color: #3182ce;
+}
+
+.notification-content {
+  padding: 1rem 1rem 1rem 0;
+  flex-grow: 1;
+}
+
+.notification-title {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.notification-message {
+  margin: 0;
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.notification-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+  color: #a0aec0;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.notification-close:hover {
+  color: #4a5568;
+}
