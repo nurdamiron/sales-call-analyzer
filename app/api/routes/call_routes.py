@@ -282,7 +282,6 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         
         # Транскрибируем аудио с продвинутой обработкой
         transcript = await transcribe_audio_advanced(file_path, call_id)
-
         
         # Обнаруживаем язык из транскрипции, если он не определен ранее
         if "detected_language" not in metadata or not metadata["detected_language"]:
@@ -304,34 +303,171 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
             transcript, call_id, language
         )
         
+        # Проверяем анализ на наличие None значений и заменяем их строками
+        for key in analysis:
+            if analysis[key] is None:
+                log_progress(call_id, f"Заменяем None значение для {key} на строку 'Не применимо'", "analysis", "debug")
+                analysis[key] = "Не применимо"
+        
+        # Убеждаемся, что все необходимые ключи присутствуют в анализе
+        required_keys = ["greeting", "needs_identification", "presentation", "objection_handling", "closing"]
+        for key in required_keys:
+            if key not in analysis:
+                log_progress(call_id, f"Добавляем отсутствующий ключ {key} в анализ", "analysis", "debug")
+                analysis[key] = "Не удалось проанализировать"
+        
+        # Проверка моментов
+        if not best_moments:
+            log_progress(call_id, "Лучшие моменты не выделены, используем заглушку", "analysis", "warning")
+            best_moments = [{"text": "Не удалось выделить", "comment": "Анализатор не смог найти выраженно положительные моменты"}]
+        
+        if not worst_moments:
+            log_progress(call_id, "Худшие моменты не выделены, используем заглушку", "analysis", "warning")
+            worst_moments = [{"text": "Не удалось выделить", "comment": "Анализатор не смог найти выраженно проблемные моменты"}]
+        
+        # Проверяем, что у всех моментов есть необходимые поля
+        for moment in best_moments + worst_moments:
+            if "text" not in moment:
+                moment["text"] = "Не удалось выделить"
+            if "comment" not in moment:
+                moment["comment"] = "Без комментария"
+            if "recommendation" not in moment and moment in worst_moments:
+                moment["recommendation"] = "Нет конкретных рекомендаций"
+        
         # Разделение диалога на реплики
         log_progress(call_id, "Разделение диалога на реплики", "dialogue_splitting")
         dialogue = dialogue_splitter.split_dialogue(transcript, language)
         
-        # Создаем результат анализа
-        log_progress(call_id, "Формирование итогового отчета", "finalizing")
-        result = CallAnalysisResult(
-            call_id=call_id,
-            file_path=file_path,
-            duration=duration,
-            transcript=transcript,
-            dialogue=dialogue,
-            analysis=analysis,
-            score=score,
-            best_moments=best_moments,
-            worst_moments=worst_moments,
-            recommendations=recommendations,
-            metadata={
-                "original_filename": original_filename,
-                "language": language,
-                **metadata
+        try:
+            # Создаем результат анализа
+            log_progress(call_id, "Формирование итогового отчета", "finalizing")
+            
+            result = CallAnalysisResult(
+                call_id=call_id,
+                file_path=file_path,
+                duration=duration,
+                transcript=transcript,
+                dialogue=dialogue,
+                analysis=analysis,
+                score=score,
+                best_moments=best_moments,
+                worst_moments=worst_moments,
+                recommendations=recommendations,
+                metadata={
+                    "original_filename": original_filename,
+                    "language": language,
+                    **(metadata or {})
+                }
+            )
+            
+            # Сохраняем результат в JSON
+            result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
+            save_json(result_path, result.dict())
+            log_progress(call_id, "Анализ успешно завершен", "completed")
+            
+        except Exception as validation_error:
+            # Логируем детали ошибки валидации
+            error_msg = f"Ошибка при создании CallAnalysisResult: {str(validation_error)}"
+            log_progress(call_id, error_msg, "error", "error")
+            
+            # Сохраняем проблемные данные для отладки
+            debug_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_debug.json")
+            debug_data = {
+                "transcript": transcript[:1000] + "...", # Первые 1000 символов
+                "analysis": analysis,
+                "score": score,
+                "best_moments": best_moments,
+                "worst_moments": worst_moments,
+                "validation_error": str(validation_error)
             }
-        )
-        
-        # Сохраняем результат в JSON
-        result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
-        save_json(result_path, result.dict())
-        log_progress(call_id, "Анализ успешно завершен", "completed")
+            save_json(debug_path, debug_data)
+            
+            # Повторная попытка со всеми исправлениями
+            log_progress(call_id, "Попытка исправить данные и повторить сохранение", "fixing", "warning")
+            
+            # Исправляем все возможные проблемы с данными
+            # 1. Еще раз проверяем все словари analysis на наличие None
+            for key in list(analysis.keys()):
+                if analysis[key] is None:
+                    analysis[key] = "Не удалось проанализировать после исправления"
+            
+            # 2. Проверяем структуру score
+            if not isinstance(score, dict):
+                score = {
+                    "script_adherence": {"score": 5.0, "comment": "Автоматическая оценка после исправления"},
+                    "active_listening": {"score": 5.0, "comment": "Автоматическая оценка после исправления"},
+                    "objection_handling": {"score": 5.0, "comment": "Автоматическая оценка после исправления"},
+                    "sales_techniques": {"score": 5.0, "comment": "Автоматическая оценка после исправления"},
+                    "communication_ethics": {"score": 5.0, "comment": "Автоматическая оценка после исправления"},
+                    "overall": 5.0
+                }
+            else:
+                # Проверяем наличие всех требуемых полей
+                required_score_keys = ["script_adherence", "active_listening", "objection_handling", 
+                                      "sales_techniques", "communication_ethics", "overall"]
+                
+                for key in required_score_keys:
+                    if key not in score:
+                        if key == "overall":
+                            score[key] = 5.0
+                        else:
+                            score[key] = {"score": 5.0, "comment": "Добавлено после исправления"}
+                    elif key != "overall" and not isinstance(score[key], dict):
+                        score[key] = {"score": 5.0, "comment": "Исправлено после ошибки валидации"}
+            
+            # 3. Проверяем структуру моментов
+            for i, moment in enumerate(best_moments):
+                if not isinstance(moment, dict):
+                    best_moments[i] = {"text": "Исправлено после ошибки", "comment": "Автоматическое исправление"}
+            
+            for i, moment in enumerate(worst_moments):
+                if not isinstance(moment, dict):
+                    worst_moments[i] = {
+                        "text": "Исправлено после ошибки", 
+                        "comment": "Автоматическое исправление",
+                        "recommendation": "Добавлено после исправления"
+                    }
+            
+            # Проверяем что моменты не пустые
+            if not best_moments:
+                best_moments = [{"text": "Автоматически добавлено", "comment": "Нет данных после исправления"}]
+            
+            if not worst_moments:
+                worst_moments = [{"text": "Автоматически добавлено", "comment": "Нет данных после исправления", 
+                                 "recommendation": "Автоматически добавлено"}]
+            
+            # Повторная попытка создания объекта и сохранения
+            try:
+                # Создаем новый объект после исправлений
+                result = CallAnalysisResult(
+                    call_id=call_id,
+                    file_path=file_path,
+                    duration=duration,
+                    transcript=transcript,
+                    dialogue=dialogue,
+                    analysis=analysis,
+                    score=score,
+                    best_moments=best_moments,
+                    worst_moments=worst_moments,
+                    recommendations=recommendations or ["Повторите анализ для получения рекомендаций"],
+                    metadata={
+                        "original_filename": original_filename,
+                        "language": language,
+                        "fixed_after_validation_error": True,
+                        **(metadata or {})
+                    }
+                )
+                
+                # Сохраняем исправленный результат
+                result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
+                save_json(result_path, result.dict())
+                log_progress(call_id, "Анализ завершен после исправления ошибок", "completed")
+                
+            except Exception as second_error:
+                # Если и после исправлений не получилось, логируем окончательную ошибку
+                final_error_msg = f"Не удалось сохранить результат даже после исправлений: {str(second_error)}"
+                log_progress(call_id, final_error_msg, "error", "error")
+                raise Exception(final_error_msg)
         
         # Удаляем файл-маркер обработки
         if os.path.exists(processing_path):
@@ -340,7 +476,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
     except Exception as e:
         # Логируем ошибку
         error_msg = f"Ошибка при обработке звонка: {str(e)}"
-        log_progress(call_id, error_msg, "error")
+        log_progress(call_id, error_msg, "error", "error")
         
         import traceback
         with open(os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_error.log"), "w") as f:
@@ -350,7 +486,6 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         # Удаляем файл-маркер обработки
         if os.path.exists(processing_path):
             os.remove(processing_path)
-
 
 @router.get("/calls/progress/{call_id}")
 async def get_call_progress_status(call_id: str):

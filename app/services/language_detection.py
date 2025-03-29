@@ -48,7 +48,7 @@ def detect_audio_language(file_path: str, call_id: Optional[str] = None) -> str:
             }
             
             data = {
-                "model": "whisper-1",
+                "model": "whisper-large-v2",
                 "response_format": "json"
             }
             

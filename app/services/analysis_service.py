@@ -12,7 +12,7 @@ load_dotenv()
 # Получаем API ключ из переменных окружения
 api_key = os.getenv("OPENAI_API_KEY")
 
-def log_progress(call_id: str, message: str, step: Optional[str] = None):
+def log_progress(call_id: str, message: str, step: Optional[str] = None, log_level: str = "info"):
     """
     Записывает сообщение о прогрессе в файл логов
     
@@ -20,6 +20,7 @@ def log_progress(call_id: str, message: str, step: Optional[str] = None):
         call_id (str): ID звонка
         message (str): Сообщение о прогрессе
         step (str, optional): Текущий этап обработки
+        log_level (str): Уровень логирования (info, warning, error, debug)
     """
     # Получаем директорию для результатов из переменных окружения
     results_dir = os.getenv("RESULTS_DIR", "app/static/results")
@@ -48,7 +49,8 @@ def log_progress(call_id: str, message: str, step: Optional[str] = None):
         log_entry = {
             "timestamp": current_time,
             "elapsed_seconds": round(elapsed, 2),
-            "message": message
+            "message": message,
+            "level": log_level
         }
         
         if step:
@@ -62,37 +64,24 @@ def log_progress(call_id: str, message: str, step: Optional[str] = None):
         current_progress["current_message"] = message
         current_progress["last_update"] = current_time
         
+        # Дополнительно логируем в консоль для более легкой отладки
+        print(f"[{call_id}][{log_level.upper()}] {message}")
+        
         # Записываем обновленный прогресс в файл
         with open(progress_file, 'w', encoding='utf-8') as f:
             json.dump(current_progress, f, ensure_ascii=False, indent=2)
             
+        # Если уровень логирования - error, создаем дополнительный файл с ошибкой
+        if log_level == "error":
+            error_file = os.path.join(results_dir, f"{call_id}_error_details.log")
+            with open(error_file, 'a', encoding='utf-8') as f:
+                timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+                f.write(f"[{timestamp}] {message}\n")
+            
     except Exception as e:
         print(f"Ошибка при записи прогресса: {str(e)}")
 
-
-# app/services/analysis_service.py
-import os
-import json
-import time
-import requests
-from typing import Dict, List, Tuple, Any, Optional
-from dotenv import load_dotenv
-from app.prompts.analysis_prompt import get_analysis_prompt
-
-# Загрузка переменных окружения
-load_dotenv()
-
-# Получаем API ключ из переменных окружения
-api_key = os.getenv("OPENAI_API_KEY")
-
-def log_progress(call_id: str, message: str, step: Optional[str] = None):
-    """
-    Записывает сообщение о прогрессе в файл логов
-    """
-    # Код функции log_progress остается без изменений
-    # ...
-
-async def analyze_transcript(transcript: str, call_id: Optional[str] = None, language: str = "ru") -> Tuple[Dict[str, str], Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[str]]:
+async def analyze_transcript(transcript: str, call_id: Optional[str] = None, language: str = "ru") -> Tuple[Dict[str, Optional[str]], Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[str]]:
     """
     Анализирует транскрипцию звонка с использованием OpenAI API
     
@@ -102,7 +91,7 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None, lan
         language (str): Код языка (ru, kk)
         
     Returns:
-        Tuple[Dict[str, str], Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[str]]: 
+        Tuple[Dict[str, Optional[str]], Dict[str, Any], List[Dict[str, Any]], List[Dict[str, Any]], List[str]]: 
             - Анализ по этапам разговора
             - Оценки
             - Лучшие моменты
@@ -160,66 +149,88 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None, lan
             # Получаем результат
             response_data = response.json()
             content = response_data["choices"][0]["message"]["content"]
-            result_json = json.loads(content)
             
-            # Извлекаем компоненты результата
-            analysis = result_json.get("analysis", {})
-            score = result_json.get("score", {})
-            best_moments = result_json.get("best_moments", [])
-            worst_moments = result_json.get("worst_moments", [])
-            recommendations = result_json.get("recommendations", [])
-            
-            # Добавляем пустую рекомендацию, если её нет в проблемных моментах
-            for moment in worst_moments:
-                if "recommendation" not in moment:
-                    moment["recommendation"] = ""
-            
-            # Рассчитываем общую оценку, исключая "N/A" оценки
-            criterion_scores = []
-            
-            # Проходим по всем критериям и добавляем числовые оценки
-            for criterion in ["script_adherence", "active_listening", "sales_techniques", "communication_ethics"]:
-                if criterion in score and "score" in score[criterion]:
-                    criterion_score = score[criterion]["score"]
-                    if isinstance(criterion_score, (int, float)):
-                        criterion_scores.append(criterion_score)
-            
-            # Проверяем оценку за обработку возражений
-            objection_criterion = "objection_handling"
-            if objection_criterion in score and "score" in score[objection_criterion]:
-                objection_score = score[objection_criterion]["score"]
-                # Только если это числовое значение, а не "N/A"
-                if objection_score != "N/A" and isinstance(objection_score, (int, float)):
-                    criterion_scores.append(objection_score)
-            
-            # Рассчитываем средний балл, если есть оценки
-            if criterion_scores:
-                overall_score = round(sum(criterion_scores) / len(criterion_scores), 1)
-            else:
-                overall_score = 0  # На случай, если нет критериев
-            
-            # Добавляем общую оценку
-            score["overall"] = overall_score
-            
-            if call_id:
-                log_progress(call_id, f"Общая оценка звонка: {score.get('overall', 'N/A')}/10")
-                log_progress(call_id, f"Выявлено {len(best_moments)} сильных и {len(worst_moments)} слабых моментов")
-                log_progress(call_id, f"Подготовлено {len(recommendations)} рекомендаций")
-                log_progress(call_id, "Формирование итогового отчета", "finalizing")
-                log_progress(call_id, "Анализ успешно завершен", "completed")
-            
-            return analysis, score, best_moments, worst_moments, recommendations
+            try:
+                result_json = json.loads(content)
+                
+                # Извлекаем компоненты результата
+                analysis = result_json.get("analysis", {})
+                score = result_json.get("score", {})
+                best_moments = result_json.get("best_moments", [])
+                worst_moments = result_json.get("worst_moments", [])
+                recommendations = result_json.get("recommendations", [])
+                
+                # Обработка для словаря analysis - заменяем None на строку
+                for key in analysis:
+                    if analysis[key] is None:
+                        log_progress(call_id, f"Заменяем None значение для {key} на 'Не применимо'", "analysis", "debug")
+                        analysis[key] = "Не применимо"
+                
+                # Гарантируем, что analysis содержит все ожидаемые ключи
+                required_analysis_keys = ["greeting", "needs_identification", "presentation", "objection_handling", "closing"]
+                for key in required_analysis_keys:
+                    if key not in analysis:
+                        log_progress(call_id, f"Добавляем отсутствующий ключ {key} в анализ", "analysis", "debug")
+                        analysis[key] = "Не удалось проанализировать"
+                
+                # Добавляем пустую рекомендацию, если её нет в проблемных моментах
+                for moment in worst_moments:
+                    if "recommendation" not in moment:
+                        moment["recommendation"] = ""
+                
+                # Рассчитываем общую оценку, исключая "N/A" оценки
+                criterion_scores = []
+                
+                # Проходим по всем критериям и добавляем числовые оценки
+                for criterion in ["script_adherence", "active_listening", "sales_techniques", "communication_ethics"]:
+                    if criterion in score and "score" in score[criterion]:
+                        criterion_score = score[criterion]["score"]
+                        if isinstance(criterion_score, (int, float)):
+                            criterion_scores.append(criterion_score)
+                
+                # Проверяем оценку за обработку возражений
+                objection_criterion = "objection_handling"
+                if objection_criterion in score and "score" in score[objection_criterion]:
+                    objection_score = score[objection_criterion]["score"]
+                    # Только если это числовое значение, а не "N/A"
+                    if objection_score != "N/A" and isinstance(objection_score, (int, float)):
+                        criterion_scores.append(objection_score)
+                
+                # Рассчитываем средний балл, если есть оценки
+                if criterion_scores:
+                    overall_score = round(sum(criterion_scores) / len(criterion_scores), 1)
+                else:
+                    overall_score = 0  # На случай, если нет критериев
+                
+                # Добавляем общую оценку
+                score["overall"] = overall_score
+                
+                if call_id:
+                    log_progress(call_id, f"Общая оценка звонка: {score.get('overall', 'N/A')}/10")
+                    log_progress(call_id, f"Выявлено {len(best_moments)} сильных и {len(worst_moments)} слабых моментов")
+                    log_progress(call_id, f"Подготовлено {len(recommendations)} рекомендаций")
+                    log_progress(call_id, "Формирование итогового отчета", "finalizing")
+                    log_progress(call_id, "Анализ успешно завершен", "completed")
+                
+                return analysis, score, best_moments, worst_moments, recommendations
+                
+            except json.JSONDecodeError as json_error:
+                error_msg = f"Ошибка при разборе JSON: {str(json_error)}. Ответ: {content[:200]}..."
+                if call_id:
+                    log_progress(call_id, error_msg, "error", "error")
+                raise Exception(error_msg)
+                
         else:
             error_msg = f"Ошибка API: {response.status_code}, {response.text}"
             if call_id:
-                log_progress(call_id, f"Ошибка при анализе: {error_msg}")
+                log_progress(call_id, f"Ошибка при анализе: {error_msg}", "error", "error")
             print(error_msg)
             raise Exception(f"Ошибка API: {response.status_code}")
         
     except Exception as e:
         error_msg = f"Ошибка при анализе транскрипции: {str(e)}"
         if call_id:
-            log_progress(call_id, error_msg, "error")
+            log_progress(call_id, error_msg, "error", "error")
         print(error_msg)
         
         # В случае ошибки возвращаем базовые данные
@@ -244,67 +255,3 @@ async def analyze_transcript(transcript: str, call_id: Optional[str] = None, lan
         default_recommendations = ["Повторите анализ позже"]
         
         return default_analysis, default_score, default_moments, default_moments, default_recommendations
-
-def process_gpt4_response(response_json: Dict, call_id: Optional[str] = None) -> Tuple:
-    """Обрабатывает ответ от GPT-4 и структурирует результаты"""
-    try:
-        # Извлекаем текст ответа
-        content = response_json["choices"][0]["message"]["content"]
-        
-        # Парсим JSON
-        result_json = json.loads(content)
-        
-        # Извлекаем компоненты результата
-        analysis = result_json.get("analysis", {})
-        score = result_json.get("score", {})
-        best_moments = result_json.get("best_moments", [])
-        worst_moments = result_json.get("worst_moments", [])
-        recommendations = result_json.get("recommendations", [])
-        
-        # Проверяем наличие детальных рекомендаций
-        for moment in worst_moments:
-            if "recommendation" not in moment:
-                moment["recommendation"] = "Рекомендация отсутствует"
-        
-        # Рассчитываем общую оценку
-        criterion_scores = []
-        
-        # Собираем числовые оценки
-        for criterion in ["script_adherence", "active_listening", "sales_techniques", "communication_ethics"]:
-            if criterion in score and "score" in score[criterion]:
-                criterion_score = score[criterion]["score"]
-                if isinstance(criterion_score, (int, float)):
-                    criterion_scores.append(criterion_score)
-        
-        # Проверяем оценку за обработку возражений
-        objection_criterion = "objection_handling"
-        if objection_criterion in score and "score" in score[objection_criterion]:
-            objection_score = score[objection_criterion]["score"]
-            if objection_score != "N/A" and isinstance(objection_score, (int, float)):
-                criterion_scores.append(objection_score)
-        
-        # Рассчитываем средний балл
-        if criterion_scores:
-            overall_score = round(sum(criterion_scores) / len(criterion_scores), 1)
-        else:
-            overall_score = 0
-        
-        # Добавляем общую оценку
-        score["overall"] = overall_score
-        
-        # Логируем итоги анализа
-        if call_id:
-            log_progress(call_id, f"GPT-4 анализ завершен с оценкой {overall_score}/10")
-            log_progress(call_id, f"Выявлено {len(best_moments)} сильных и {len(worst_moments)} слабых моментов")
-            log_progress(call_id, f"Подготовлено {len(recommendations)} общих рекомендаций")
-        
-        return analysis, score, best_moments, worst_moments, recommendations
-        
-    except Exception as e:
-        error_msg = f"Ошибка при обработке ответа GPT-4: {str(e)}"
-        if call_id:
-            log_progress(call_id, error_msg, "error")
-        print(error_msg)
-        
-        # Возвращаем базовые данные в случае ошибки
-        return {}, {"overall": 5.0}, [], [], []

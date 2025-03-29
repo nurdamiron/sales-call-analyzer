@@ -46,7 +46,8 @@ class CallAnalysisResult(BaseModel):
     duration: Optional[float] = None
     transcript: str
     dialogue: Optional[List[UtteranceItem]] = None  # Диалог с разделением на реплики
-    analysis: Dict[str, str]  # Анализ по этапам разговора
+    # Важное изменение: разрешаем None значения в словаре
+    analysis: Dict[str, Optional[str]]  # Анализ по этапам разговора
     score: CallScore
     best_moments: List[Moment]
     worst_moments: List[Moment]
