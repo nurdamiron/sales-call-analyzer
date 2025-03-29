@@ -2,6 +2,7 @@
 import os
 import requests
 from typing import Optional
+from pydub import AudioSegment
 
 def detect_audio_language(file_path: str, call_id: Optional[str] = None) -> str:
     """
@@ -24,22 +25,24 @@ def detect_audio_language(file_path: str, call_id: Optional[str] = None) -> str:
         api_key = os.getenv("OPENAI_API_KEY")
         
         # URL для запроса к API Whisper
-        url = "https://api.openai.com/v1/audio/translations"
+        url = "https://api.openai.com/v1/audio/transcriptions"
         
         # Заголовки
         headers = {
             "Authorization": f"Bearer {api_key}"
         }
         
-        # Отправляем короткий фрагмент аудио для определения языка (первые 15 секунд)
-        from pydub import AudioSegment
+        # Отправляем короткий фрагмент аудио для определения языка (первые 30 секунд)
         audio = AudioSegment.from_file(file_path)
-        sample_duration = min(15000, len(audio))  # 15 секунд или меньше
+        sample_duration = min(30000, len(audio))  # 30 секунд или меньше
         sample = audio[:sample_duration]
         
         # Сохраняем временный файл
         temp_file = f"{file_path}_sample.mp3"
         sample.export(temp_file, format="mp3")
+        
+        if call_id:
+            log_progress(call_id, f"Создан семпл для определения языка ({sample_duration/1000:.1f} сек)")
         
         # Подготовка запроса
         with open(temp_file, "rb") as audio_file:
@@ -48,7 +51,7 @@ def detect_audio_language(file_path: str, call_id: Optional[str] = None) -> str:
             }
             
             data = {
-                "model": "whisper-large-v2",
+                "model": "whisper-1",
                 "response_format": "json"
             }
             
@@ -64,20 +67,30 @@ def detect_audio_language(file_path: str, call_id: Optional[str] = None) -> str:
         # Анализируем ответ
         if response.status_code == 200:
             result = response.json()
-            detected_language = result.get("language", "ru")
+            detected_language = result.get("language", "").lower()
             
             if call_id:
-                log_progress(call_id, f"Определен язык: {detected_language}")
+                log_progress(call_id, f"Определен язык API: {detected_language}")
                 
             # Преобразуем некоторые коды языков
             language_mapping = {
                 "kazakh": "kk",
+                "ru": "ru",
                 "russian": "ru",
-                "ka": "kk",  # на случай если вернется другой формат
-                "ru": "ru"
+                "kk": "kk",
+                "kazak": "kk"
             }
             
-            return language_mapping.get(detected_language.lower(), detected_language)
+            # Дополнительная проверка на казахский язык по содержанию текста
+            if detected_language not in language_mapping:
+                text = result.get("text", "").lower()
+                kz_markers = ["қазақ", "қаражат", "кездесу", "келісім", "қарыз", "керек", "ұйым"]
+                if any(marker in text for marker in kz_markers):
+                    if call_id:
+                        log_progress(call_id, "Определен казахский язык по содержанию текста")
+                    return "kk"
+            
+            return language_mapping.get(detected_language, "ru")
         else:
             # В случае ошибки возвращаем русский по умолчанию
             if call_id:
