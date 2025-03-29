@@ -1,3 +1,4 @@
+# В app/models/schemas.py
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Union
 from datetime import datetime
@@ -8,10 +9,11 @@ class CallUpload(BaseModel):
     agent_name: Optional[str] = None
     client_id: Optional[str] = None
     notes: Optional[str] = None
+    language: Optional[str] = "auto"  # Добавляем поле языка
 
 class ScoreItem(BaseModel):
     """Оценка по отдельному критерию"""
-    score: Union[float, None] = Field(..., ge=0, le=10, description="Оценка от 0 до 10 или None если критерий не применим")
+    score: Union[float, None] = Field(..., description="Оценка от 0 до 10 или None если критерий не применим")
     comment: Optional[str] = None
 
 class CallScore(BaseModel):
@@ -29,6 +31,7 @@ class Moment(BaseModel):
     time_end: Optional[float] = None    # Время конца момента в секундах
     text: str                           # Текст момента
     comment: str                        # Комментарий к моменту
+    recommendation: Optional[str] = None  # Рекомендация по улучшению (для проблемных моментов)
 
 class UtteranceItem(BaseModel):
     """Реплика в диалоге"""
@@ -42,7 +45,7 @@ class CallAnalysisResult(BaseModel):
     file_path: str
     duration: Optional[float] = None
     transcript: str
-    dialogue: Optional[List[UtteranceItem]] = None  # Добавляем поле для диалога
+    dialogue: Optional[List[UtteranceItem]] = None  # Диалог с разделением на реплики
     analysis: Dict[str, str]  # Анализ по этапам разговора
     score: CallScore
     best_moments: List[Moment]
@@ -58,3 +61,25 @@ class CallListItem(BaseModel):
     duration: Optional[float] = None
     overall_score: float
     file_name: str
+    language: Optional[str] = "ru"  # Добавляем язык звонка
+
+class Comment(BaseModel):
+    """Модель комментария к звонку"""
+    id: str
+    text: str
+    comment: str
+    type: str  # 'good', 'bad', 'note'
+    created_at: str
+    recommendation: Optional[str] = None  # Добавляем рекомендацию к комментарию
+
+class CallProgress(BaseModel):
+    """Прогресс обработки звонка"""
+    call_id: str
+    status: str  # 'waiting', 'processing', 'completed', 'error'
+    progress: int  # процент выполнения 0-100
+    current_step: Optional[str] = None
+    current_message: Optional[str] = None
+    start_time: float
+    last_update: Optional[float] = None
+    messages: List[Dict]
+    detected_language: Optional[str] = None  # Добавляем определенный язык

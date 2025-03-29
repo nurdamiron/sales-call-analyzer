@@ -227,7 +227,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
     processing_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}_processing")
     
     try:
-        # Создаем файл-маркер, что звонок в обработке
+        # Создаем файл-маркер
         with open(processing_path, "w") as f:
             f.write("processing")
         
@@ -252,22 +252,42 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         metadata = {}
         if call_data:
             metadata = json.loads(call_data)
-            log_progress(call_id, f"Получены метаданные: {metadata.get('agent_name', 'Неизвестный')}")
         
-        # Получаем длительность аудио
+        # Определяем длительность аудио
         log_progress(call_id, "Определение длительности аудио...")
         duration = get_audio_duration(file_path)
         log_progress(call_id, f"Длительность аудио: {duration:.2f} секунд")
         
-        # Транскрибируем аудио
-        transcript = await transcribe_audio(file_path, call_id)
+        # Автоматическое определение языка аудио
+        from app.services.language_detection import detect_audio_language
+        language = metadata.get('language')
         
-        # Анализируем транскрипцию
-        analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript(transcript, call_id)
+        # Если язык не был указан пользователем, определяем автоматически
+        if not language or language == 'auto':
+            log_progress(call_id, "Определение языка аудио...")
+            language = detect_audio_language(file_path, call_id)
+            metadata['detected_language'] = language
+            log_progress(call_id, f"Определен язык: {language}")
         
+        # Транскрибируем аудио с учетом языка
+        transcript = await transcribe_audio(file_path, call_id, language)
+        
+        # Выбираем подходящую модель для транскрипции в зависимости от языка и длительности
+        if duration > 600:  # Для длинных звонков (более 10 минут)
+            log_progress(call_id, "Используем продвинутую модель для анализа длинного звонка")
+            analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript_advanced(
+                transcript, call_id, language
+            )
+        else:
+            # Стандартный анализ с учетом языка
+            analysis, score, best_moments, worst_moments, recommendations = await analyze_transcript(
+                transcript, call_id, language
+            )
+        
+        # Разделение диалога на реплики с учетом языка
         log_progress(call_id, "Разделение диалога на реплики", "dialogue_splitting")
-        dialogue = dialogue_splitter.split_dialogue(transcript)
-
+        dialogue = dialogue_splitter.split_dialogue(transcript, language)
+        
         # Создаем результат анализа
         log_progress(call_id, "Формирование итогового отчета", "finalizing")
         result = CallAnalysisResult(
@@ -283,6 +303,7 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
             recommendations=recommendations,
             metadata={
                 "original_filename": original_filename,
+                "language": language,
                 **metadata
             }
         )
@@ -291,7 +312,6 @@ async def process_call(file_path: str, call_id: str, original_filename: str, cal
         result_path = os.path.join(os.getenv("RESULTS_DIR"), f"{call_id}.json")
         save_json(result_path, result.dict())
         log_progress(call_id, "Анализ успешно завершен", "completed")
-
         
         # Удаляем файл-маркер обработки
         if os.path.exists(processing_path):

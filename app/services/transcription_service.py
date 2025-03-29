@@ -204,3 +204,94 @@ async def transcribe_audio(file_path: str, call_id: Optional[str] = None) -> str
         print(error_msg)
         # В случае ошибки возвращаем заглушку
         return "Не удалось транскрибировать аудио"
+
+async def transcribe_audio_advanced(file_path: str, call_id: Optional[str] = None, language: Optional[str] = None) -> str:
+    """
+    Расширенная транскрипция с дополнительной обработкой и проверками
+    """
+    try:
+        if call_id:
+            log_progress(call_id, "Начало продвинутой транскрипции", "transcription_advanced")
+        
+        # Подготавливаем аудио (нормализация, удаление шума)
+        from pydub import AudioSegment
+        from pydub.effects import normalize
+        
+        log_progress(call_id, "Подготовка аудио для транскрипции...")
+        audio = AudioSegment.from_file(file_path)
+        
+        # Нормализация громкости
+        normalized_audio = normalize(audio)
+        
+        # Сохраняем временно обработанное аудио
+        processed_file = f"{file_path}_processed.mp3"
+        normalized_audio.export(processed_file, format="mp3")
+        
+        # Разделение на сегменты для более точной транскрипции
+        if len(normalized_audio) > 300000:  # Более 5 минут
+            log_progress(call_id, "Разделяем аудио на сегменты для более точной транскрипции")
+            
+            segment_duration = 300000  # 5 минут в миллисекундах
+            segments = []
+            
+            for i in range(0, len(normalized_audio), segment_duration):
+                segment = normalized_audio[i:min(i + segment_duration, len(normalized_audio))]
+                segment_file = f"{file_path}_segment_{i}.mp3"
+                segment.export(segment_file, format="mp3")
+                segments.append(segment_file)
+            
+            # Транскрибируем каждый сегмент
+            transcriptions = []
+            for i, segment_file in enumerate(segments):
+                log_progress(call_id, f"Транскрибирование сегмента {i+1}/{len(segments)}")
+                segment_transcript = await transcribe_audio(segment_file, None, language)
+                transcriptions.append(segment_transcript)
+                
+                # Удаляем временный файл
+                try:
+                    os.remove(segment_file)
+                except:
+                    pass
+            
+            # Объединяем транскрипции
+            full_transcript = " ".join(transcriptions)
+            
+        else:
+            # Транскрибируем файл целиком если он не слишком длинный
+            full_transcript = await transcribe_audio(processed_file, None, language)
+        
+        # Удаляем временный файл
+        try:
+            os.remove(processed_file)
+        except:
+            pass
+        
+        # Постобработка транскрипции
+        if language == "kk":
+            # Специфические замены для казахского языка
+            replacements = [
+                ("men", "мен"),
+                ("sen", "сен"),
+                # Добавьте другие специфические замены
+            ]
+            
+            for old, new in replacements:
+                full_transcript = full_transcript.replace(old, new)
+        
+        if call_id:
+            log_progress(
+                call_id, 
+                f"Продвинутая транскрипция завершена: {len(full_transcript.split())} слов", 
+                "transcription_complete"
+            )
+        
+        return full_transcript
+        
+    except Exception as e:
+        error_msg = f"Ошибка при продвинутой транскрипции: {str(e)}"
+        if call_id:
+            log_progress(call_id, error_msg, "error")
+        print(error_msg)
+        
+        # В случае ошибки пробуем простую транскрипцию
+        return await transcribe_audio(file_path, call_id, language)
